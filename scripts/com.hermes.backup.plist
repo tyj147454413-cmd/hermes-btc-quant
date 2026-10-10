@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  D1 数据自动备份排程模板 (2026-08-23)
+  安装(每日 03:30 备份):
+    cp scripts/com.hermes.backup.plist ~/Library/LaunchAgents/
+    launchctl load ~/Library/LaunchAgents/com.hermes.backup.plist
+  卸载:
+    launchctl unload ~/Library/LaunchAgents/com.hermes.backup.plist
+    rm ~/Library/LaunchAgents/com.hermes.backup.plist
+  手动触发一次: launchctl start com.hermes.backup
+  日志: ~/hermes_btc_backup/backup.log
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.hermes.backup</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/tangyijun/Desktop/hermes btc/scripts/backup_data.sh</string>
+    </array>
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>3</integer>
+        <key>Minute</key>
+        <integer>30</integer>
+    </dict>
+    <key>StandardOutPath</key>
+    <string>/Users/tangyijun/hermes_btc_backup/backup.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/tangyijun/hermes_btc_backup/backup.log</string>
+</dict>
+</plist>

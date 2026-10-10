@@ -1,0 +1,228 @@
+{
+  "trained_at": "2026-09-04T11:59:34.394253+00:00",
+  "decision_min": 20,
+  "tag": "gs",
+  "model_basis": "random_split_topis",
+  "train_rows": 727,
+  "pm_rows_train": 39,
+  "days": 60,
+  "seed": 42,
+  "params": {
+    "objective": "binary",
+    "metric": "auc",
+    "verbosity": -1,
+    "num_leaves": 16,
+    "max_depth": 5,
+    "learning_rate": 0.05,
+    "n_estimators": 900,
+    "min_child_samples": 40,
+    "feature_fraction": 0.8,
+    "bagging_fraction": 0.8,
+    "bagging_freq": 1,
+    "reg_alpha": 0.3,
+    "reg_lambda": 2.0,
+    "seed": 42
+  },
+  "n_boost_rounds": 19,
+  "calibration": {
+    "x": [
+      0.258306,
+      0.281715,
+      0.288574,
+      0.296183,
+      0.296368,
+      0.335033,
+      0.335721,
+      0.349223,
+      0.349826,
+      0.569089,
+      0.569664,
+      0.729013,
+      0.729981,
+      0.744253,
+      0.749746,
+      0.760204
+    ],
+    "y": [
+      0.0,
+      0.0,
+      0.166667,
+      0.166667,
+      0.217391,
+      0.217391,
+      0.333333,
+      0.333333,
+      0.5,
+      0.5,
+      0.721311,
+      0.721311,
+      0.857143,
+      0.857143,
+      1.0,
+      1.0
+    ]
+  },
+  "features": [
+    "dev_pct",
+    "volatility_5m",
+    "pos24h_percentile",
+    "range_24h_pct",
+    "taker_1h_buy_pct",
+    "taker_5m_last",
+    "taker_15m",
+    "imb_5m",
+    "imb_15m",
+    "kline_15m",
+    "kline_1h",
+    "momentum_burst",
+    "macro_up_1h",
+    "macro_up_4h",
+    "rsi_1h",
+    "rsi_4h",
+    "bb_pos_1h",
+    "bb_pos_4h",
+    "macd_1h_hist",
+    "macd_4h_hist",
+    "vol_ratio_1h",
+    "prev_chg_pct",
+    "prev_consec",
+    "roll_up_6h",
+    "ret_24h",
+    "hist_up_rate",
+    "funding_rate",
+    "hour_sin",
+    "hour_cos",
+    "open_dir",
+    "open_range_pct",
+    "open_vol_ratio",
+    "pm_up_dec",
+    "pm_delta"
+  ],
+  "validation": {
+    "n": 183,
+    "pm_rows": 49,
+    "overall": {
+      "n": 183,
+      "acc": 0.6831,
+      "n@0.55": 123,
+      "hit@0.55": 0.7724,
+      "n@0.6": 123,
+      "hit@0.6": 0.7724,
+      "n@0.65": 123,
+      "hit@0.65": 0.7724
+    },
+    "compare_v1": {
+      "v_all": {
+        "v1": {
+          "n": 183,
+          "acc": 0.6721,
+          "n@0.55": 183,
+          "hit@0.55": 0.6721,
+          "n@0.6": 134,
+          "hit@0.6": 0.7239,
+          "n@0.65": 126,
+          "hit@0.65": 0.7619
+        },
+        "gs": {
+          "n": 183,
+          "acc": 0.6831,
+          "n@0.55": 123,
+          "hit@0.55": 0.7724,
+          "n@0.6": 123,
+          "hit@0.6": 0.7724,
+          "n@0.65": 123,
+          "hit@0.65": 0.7724
+        }
+      },
+      "v_pm": {
+        "v1": {
+          "n": 10,
+          "acc": 0.7,
+          "n@0.55": 10,
+          "hit@0.55": 0.7,
+          "n@0.6": 10,
+          "hit@0.6": 0.7,
+          "n@0.65": 9,
+          "hit@0.65": 0.7778
+        },
+        "gs": {
+          "n": 10,
+          "acc": 0.7,
+          "n@0.55": 9,
+          "hit@0.55": 0.7778,
+          "n@0.6": 9,
+          "hit@0.6": 0.7778,
+          "n@0.65": 9,
+          "hit@0.65": 0.7778
+        }
+      },
+      "n_pm_val": 10,
+      "flip_gs_wins": 20,
+      "flip_v1_wins": 18,
+      "v_pm_strong": {
+        "v1": {
+          "n": 1,
+          "acc": 1.0,
+          "n@0.55": 1,
+          "hit@0.55": 1.0,
+          "n@0.6": 1,
+          "hit@0.6": 1.0,
+          "n@0.65": 1,
+          "hit@0.65": 1.0
+        },
+        "gs": {
+          "n": 1,
+          "acc": 1.0,
+          "n@0.55": 1,
+          "hit@0.55": 1.0,
+          "n@0.6": 1,
+          "hit@0.6": 1.0,
+          "n@0.65": 1,
+          "hit@0.65": 1.0
+        }
+      }
+    }
+  },
+  "top10_importance": [
+    [
+      "dev_pct",
+      1448.3064175844193
+    ],
+    [
+      "momentum_burst",
+      439.50610613822937
+    ],
+    [
+      "imb_15m",
+      48.91946005821228
+    ],
+    [
+      "bb_pos_4h",
+      29.29658818244934
+    ],
+    [
+      "funding_rate",
+      27.386780127882957
+    ],
+    [
+      "open_range_pct",
+      25.604103952646255
+    ],
+    [
+      "imb_5m",
+      23.716969847679138
+    ],
+    [
+      "kline_15m",
+      19.43559980392456
+    ],
+    [
+      "taker_5m_last",
+      16.5145503282547
+    ],
+    [
+      "hour_cos",
+      15.495071768760681
+    ]
+  ]
+}

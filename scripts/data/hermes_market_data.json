@@ -1,0 +1,406 @@
+{
+  "timestamp": "2026-08-29T22:00:00-04:00",
+  "slug": "bitcoin-up-or-down-august-29-2026-10pm-et",
+  "collect_time_utc": "2026-08-30T02:49:54.564000+00:00",
+  "clock_skew_sec": 17986.7,
+  "timeframes": {
+    "1m": {
+      "name": "1m",
+      "rsi": 63.1,
+      "bb_pos": 75.0,
+      "bb_upper": 78132.3,
+      "bb_lower": 78012.3,
+      "vol_ratio": 0.86,
+      "macd_line": 11.62,
+      "macd_signal": 7.28,
+      "macd_hist": 4.34,
+      "macd_hist_prev": 4.97,
+      "macd_acceleration": -0.63,
+      "last_3_candles": "阳阳阳",
+      "last_4_candles": "阴阳阳阳",
+      "recent_dir": "UP",
+      "last_close": 78101.7,
+      "last_open": 78101.7,
+      "is_hammer": false,
+      "is_shooting_star": false,
+      "consecutive_up": 5,
+      "consecutive_down": 1,
+      "taker_trend": [
+        0.795,
+        0.183,
+        0.583,
+        0.555,
+        0.677,
+        0.361
+      ],
+      "taker_pct_last": 0.361,
+      "recent_candles": [
+        {
+          "t": 1788057900000,
+          "o": 78102.45,
+          "c": 78090.57,
+          "tb": 0.67881
+        },
+        {
+          "t": 1788057960000,
+          "o": 78090.57,
+          "c": 78097.14,
+          "tb": 3.83076
+        },
+        {
+          "t": 1788058020000,
+          "o": 78097.14,
+          "c": 78098.0,
+          "tb": 0.45996
+        },
+        {
+          "t": 1788058080000,
+          "o": 78097.99,
+          "c": 78101.68,
+          "tb": 1.27499
+        },
+        {
+          "t": 1788058140000,
+          "o": 78101.69,
+          "c": 78101.69,
+          "tb": 0.2905
+        }
+      ]
+    },
+    "5m": {
+      "name": "5m",
+      "rsi": 50.7,
+      "bb_pos": 82.0,
+      "bb_upper": 78129.7,
+      "bb_lower": 78005.3,
+      "vol_ratio": 0.76,
+      "macd_line": -23.88,
+      "macd_signal": -28.37,
+      "macd_hist": 4.49,
+      "macd_hist_prev": 0.91,
+      "macd_acceleration": 3.58,
+      "last_3_candles": "阴阳阳",
+      "last_4_candles": "阴阴阳阳",
+      "recent_dir": "UP",
+      "last_close": 78106.9,
+      "last_open": 78102.4,
+      "is_hammer": false,
+      "is_shooting_star": false,
+      "consecutive_up": 2,
+      "consecutive_down": 4,
+      "taker_trend": [],
+      "taker_pct_last": null
+    },
+    "15m": {
+      "name": "15m",
+      "rsi": 48.9,
+      "bb_pos": 36.0,
+      "bb_upper": 78298.5,
+      "bb_lower": 78001.2,
+      "vol_ratio": 0.45,
+      "macd_line": -19.15,
+      "macd_signal": -2.72,
+      "macd_hist": -16.44,
+      "macd_hist_prev": -21.38,
+      "macd_acceleration": 4.94,
+      "last_3_candles": "阳阴阳",
+      "last_4_candles": "阳阳阴阳",
+      "recent_dir": "UP",
+      "last_close": 78106.9,
+      "last_open": 78102.4,
+      "is_hammer": false,
+      "is_shooting_star": false,
+      "consecutive_up": 4,
+      "consecutive_down": 2,
+      "taker_trend": [],
+      "taker_pct_last": null
+    },
+    "1H": {
+      "name": "1H",
+      "rsi": 51.0,
+      "bb_pos": 66.0,
+      "bb_upper": 78443.8,
+      "bb_lower": 77444.5,
+      "vol_ratio": 0.88,
+      "macd_line": 6.72,
+      "macd_signal": -63.2,
+      "macd_hist": 69.93,
+      "macd_hist_prev": 87.73,
+      "macd_acceleration": -17.8,
+      "last_3_candles": "阳阴阴",
+      "last_4_candles": "阳阳阴阴",
+      "recent_dir": "DOWN",
+      "last_close": 78106.9,
+      "last_open": 78081.5,
+      "is_hammer": false,
+      "is_shooting_star": false,
+      "consecutive_up": 3,
+      "consecutive_down": 3,
+      "taker_trend": [],
+      "taker_pct_last": null
+    },
+    "4H": {
+      "name": "4H",
+      "rsi": 45.6,
+      "bb_pos": 34.0,
+      "bb_upper": 80672.1,
+      "bb_lower": 76808.9,
+      "vol_ratio": 0.37,
+      "macd_line": -162.76,
+      "macd_signal": -1.08,
+      "macd_hist": -161.68,
+      "macd_hist_prev": -211.9,
+      "macd_acceleration": 50.22,
+      "last_3_candles": "阳阳阳",
+      "last_4_candles": "阴阳阳阳",
+      "recent_dir": "UP",
+      "last_close": 78106.9,
+      "last_open": 78230.0,
+      "is_hammer": false,
+      "is_shooting_star": false,
+      "consecutive_up": 4,
+      "consecutive_down": 2,
+      "taker_trend": [],
+      "taker_pct_last": null
+    },
+    "1D": {
+      "name": "1D",
+      "rsi": 71.0,
+      "bb_pos": 72.0,
+      "bb_upper": 86218.6,
+      "bb_lower": 57316.7,
+      "vol_ratio": 0.39,
+      "macd_line": 3962.08,
+      "macd_signal": 3204.96,
+      "macd_hist": 757.12,
+      "macd_hist_prev": 1011.56,
+      "macd_acceleration": -254.44,
+      "last_3_candles": "阳阴阳",
+      "last_4_candles": "阳阳阴阳",
+      "recent_dir": "DOWN",
+      "last_close": 78106.9,
+      "last_open": 78230.0,
+      "is_hammer": false,
+      "is_shooting_star": false,
+      "consecutive_up": 4,
+      "consecutive_down": 2,
+      "taker_trend": [],
+      "taker_pct_last": null
+    }
+  },
+  "taker_pct_last": 0.361,
+  "taker_trend": [
+    0.795,
+    0.183,
+    0.583,
+    0.555,
+    0.677,
+    0.361
+  ],
+  "volatility_5m": 0.1169,
+  "anchor_price": 78081.49,
+  "current_price": 78101.69,
+  "deviation": 20.2,
+  "deviation_trend": {
+    "last_3min_dev_pct": [
+      0.0211,
+      0.0259,
+      0.0259
+    ],
+    "expanding": false,
+    "stable": true,
+    "shrinking": false
+  },
+  "ticker_24h": {
+    "high": 78330.0,
+    "low": 77382.37,
+    "volume": 6680.62111,
+    "quote_volume": 519975262.1137648,
+    "change_pct": 0.601
+  },
+  "price_position_24h": {
+    "high_24h": 78330.0,
+    "low_24h": 77382.37,
+    "current_percentile": 75.9,
+    "in_upper_half": true,
+    "in_lower_half": false
+  },
+  "taker_5m_ratio": 1.618,
+  "taker_15m_ratio": 1.022,
+  "taker_1H_ratio": 1.224,
+  "taker_1H_avg": 1.224,
+  "order_flow_5m": 0.3229,
+  "order_flow_15m": -0.0364,
+  "large_trade_5m": 0.0,
+  "large_trade_15m": 0.0,
+  "large_trade_volume_5m": 0.0,
+  "large_trade_volume_15m": 0.0,
+  "large_trade_count_5m": 0,
+  "large_trade_count_15m": 0,
+  "capital_flow": {
+    "taker_bs_ratio": 1.618,
+    "taker_bs_trend": [
+      0.23,
+      0.28,
+      0.88,
+      1.02,
+      3.62,
+      1.62
+    ],
+    "taker_bs_avg_1h": 1.224,
+    "funding_rate": 8.283e-05,
+    "open_interest": 108165.758,
+    "oi_change_24h_pct": 1.94,
+    "long_short_ratio": 1.144,
+    "long_short_ratio_trend": [
+      1.148,
+      1.146,
+      1.145,
+      1.144,
+      1.144,
+      1.144
+    ],
+    "order_book": {
+      "bid_wall": 78109.52,
+      "ask_wall": 78109.53,
+      "bid_volume_top10": 3.7,
+      "ask_volume_top10": 0.65
+    },
+    "order_flow": {
+      "imbalance_5m": 0.3229,
+      "trades_5m": 1042,
+      "large_volume_5m": 0.0,
+      "large_count_5m": 0,
+      "large_imbalance_5m": 0.0,
+      "imbalance_15m": -0.0364,
+      "trades_15m": 3041,
+      "large_volume_15m": 0.0,
+      "large_count_15m": 0,
+      "large_imbalance_15m": 0.0,
+      "effective_window_min": 15.0,
+      "partial": false
+    }
+  },
+  "sentiment": {
+    "fear_greed_index": 69,
+    "fear_greed_label": "Greed",
+    "fear_greed_trend": [
+      69,
+      68,
+      73,
+      71
+    ]
+  },
+  "historical": {
+    "target_hour": "10PM ET",
+    "up_rate": 0.429,
+    "total_samples": 42,
+    "avg_change_pct": 0.032,
+    "std_change_pct": 0.373
+  },
+  "polymarket": {
+    "up_price": 0.63,
+    "down_price": 0.37,
+    "volume": 7825.544328,
+    "liquidity": 3539.2087,
+    "active": true,
+    "closed": false,
+    "book_up_bid": 0.79,
+    "book_up_ask": 0.8,
+    "book_up_mid": 0.795,
+    "book_imbalance": 1.0,
+    "smart_money_consensus_1h": {
+      "buy_up_size": 0.0,
+      "sell_up_size": 0.0,
+      "net_up_imbalance": null,
+      "wallet_hits": 0,
+      "wallet_misses": 20,
+      "wallets_total": 20,
+      "top_holders_volume_up": 2233.35,
+      "top_holders_volume_down": 2392.18,
+      "top_holders_count_down": 20,
+      "data_source": "data-api.polymarket.com/holders"
+    }
+  },
+  "key_levels": {
+    "strong_support": 77382.4,
+    "weak_support": 77994.0,
+    "pivot": 78081.5,
+    "weak_resistance": 78330.0,
+    "strong_resistance": 78330.0
+  },
+  "v_reversal_15m": {
+    "detected": false
+  },
+  "opening": {
+    "dir": "DOWN",
+    "candle_dirs": [
+      "阴",
+      "阴",
+      "阴",
+      "阳",
+      "阴"
+    ],
+    "body_sizes": [
+      0.0,
+      0.0001,
+      0.0002,
+      0.0001,
+      0.0
+    ],
+    "high": 78251.9,
+    "low": 78212.7,
+    "range_pct": 0.05,
+    "vol_ratio": 1.99,
+    "has_fakeout": false,
+    "has_v_reversal": false
+  },
+  "prev_hour": {
+    "side": "DOWN",
+    "open": 78179.9,
+    "close": 78081.5,
+    "high": 78190.0,
+    "low": 77994.0,
+    "change_pct": -0.13,
+    "volume": 257.05,
+    "consecutive_up": 0,
+    "consecutive_down": 2,
+    "direction_history": [
+      "UP",
+      "DOWN",
+      "DOWN"
+    ],
+    "flips": 1,
+    "last3_chg_pct": [
+      0.002,
+      -0.064,
+      -0.126
+    ]
+  },
+  "macro_trend_1h_4h": {
+    "dirs": [
+      "UP",
+      "UP",
+      "DOWN",
+      "DOWN"
+    ],
+    "up_count": 2,
+    "down_count": 2,
+    "first_ts": 1788040800000,
+    "last_ts": 1788051600000
+  },
+  "oi_price_relation": {
+    "oi_1h_change_pct": 0.39,
+    "price_1h_change_pct": 0.03,
+    "signal": "neutral"
+  },
+  "schema_version": 7,
+  "data_quality": {
+    "ok": true,
+    "warnings": [],
+    "sanity": {
+      "current_price": 78101.69,
+      "price_pos_ok": true
+    }
+  }
+}

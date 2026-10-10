@@ -1,0 +1,27 @@
+{
+  "name": "dsh-web-restart",
+  "version": "1.0.0",
+  "description": "A \"Restart GUI\" button in the DeepSeek Harness web sidebar that restarts the dsh web server process.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dsh/index.js",
+  "exports": {
+    ".": "./dsh/index.js",
+    "./client": "./dsh/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dsh",
+    "cordis.patch.yml"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [],
+      "platform": "web",
+      "immediately": true
+    }
+  }
+}

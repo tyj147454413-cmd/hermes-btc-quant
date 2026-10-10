@@ -1,0 +1,175 @@
+{
+  "trained_at": "2026-09-03T21:06:25.727598+00:00",
+  "decision_min": 25,
+  "tag": "dm25",
+  "model_basis": "last_walkforward_window",
+  "train_rows": 6275,
+  "calibration": {
+    "x": [
+      0.240365,
+      0.28103,
+      0.281224,
+      0.314713,
+      0.315086,
+      0.345596,
+      0.345941,
+      0.347922,
+      0.34911,
+      0.363138,
+      0.363635,
+      0.392836,
+      0.393,
+      0.411602,
+      0.411917,
+      0.417689,
+      0.417705,
+      0.551053,
+      0.551287,
+      0.573255,
+      0.5737,
+      0.612492,
+      0.612644,
+      0.618994,
+      0.619026,
+      0.661241,
+      0.661716,
+      0.68274,
+      0.683248,
+      0.688664,
+      0.688784,
+      0.746242,
+      0.746462,
+      0.754431
+    ],
+    "y": [
+      0.043478,
+      0.043478,
+      0.117647,
+      0.117647,
+      0.166667,
+      0.166667,
+      0.2,
+      0.2,
+      0.272727,
+      0.272727,
+      0.309524,
+      0.309524,
+      0.315789,
+      0.315789,
+      0.333333,
+      0.333333,
+      0.441176,
+      0.441176,
+      0.625,
+      0.625,
+      0.676056,
+      0.676056,
+      0.777778,
+      0.777778,
+      0.794872,
+      0.794872,
+      0.809524,
+      0.809524,
+      0.882353,
+      0.882353,
+      0.943038,
+      0.943038,
+      1.0,
+      1.0
+    ]
+  },
+  "n_boost_rounds": 27,
+  "features": [
+    "dev_pct",
+    "volatility_5m",
+    "pos24h_percentile",
+    "range_24h_pct",
+    "taker_1h_buy_pct",
+    "taker_5m_last",
+    "taker_15m",
+    "imb_5m",
+    "imb_15m",
+    "kline_15m",
+    "kline_1h",
+    "momentum_burst",
+    "macro_up_1h",
+    "macro_up_4h",
+    "rsi_1h",
+    "rsi_4h",
+    "bb_pos_1h",
+    "bb_pos_4h",
+    "macd_1h_hist",
+    "macd_4h_hist",
+    "vol_ratio_1h",
+    "prev_chg_pct",
+    "prev_consec",
+    "roll_up_6h",
+    "ret_24h",
+    "hist_up_rate",
+    "funding_rate",
+    "hour_sin",
+    "hour_cos",
+    "open_dir",
+    "open_range_pct",
+    "open_vol_ratio"
+  ],
+  "params": {
+    "objective": "binary",
+    "metric": "auc",
+    "verbosity": -1,
+    "num_leaves": 31,
+    "max_depth": 6,
+    "learning_rate": 0.03,
+    "n_estimators": 2000,
+    "min_child_samples": 150,
+    "feature_fraction": 0.8,
+    "bagging_fraction": 0.8,
+    "bagging_freq": 1,
+    "reg_alpha": 0.1,
+    "reg_lambda": 1.0,
+    "seed": 42
+  },
+  "oos_auc": 0.8630821088827808,
+  "top10_importance": [
+    [
+      "dev_pct",
+      22556.021171916276
+    ],
+    [
+      "momentum_burst",
+      4418.433375269175
+    ],
+    [
+      "imb_15m",
+      557.804516017437
+    ],
+    [
+      "volatility_5m",
+      357.0413909070194
+    ],
+    [
+      "open_range_pct",
+      319.32370179891586
+    ],
+    [
+      "taker_5m_last",
+      264.4070954322815
+    ],
+    [
+      "range_24h_pct",
+      200.48599004745483
+    ],
+    [
+      "hour_cos",
+      142.5491036772728
+    ],
+    [
+      "imb_5m",
+      95.01040124893188
+    ],
+    [
+      "vol_ratio_1h",
+      90.26210033893585
+    ]
+  ]
+}

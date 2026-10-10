@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hermes Dashboard — Retro UI 效果样品（预览用假数据）</title>
+<style>
+  :root{
+    --bg:#07070f; --panel:#0d0d1f; --panel2:#111124; --border:#1e1e3f;
+    --text:#d8d8e8; --dim:#6a6a8a; --green:#16c784; --red:#ea3943;
+    --accent:#00ffd5; --yellow:#f0b90b; --blue:#4ec9b0;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:'SF Mono','Cascadia Code',Consolas,monospace;
+    min-height:100vh; overflow-x:hidden;
+  }
+
+  /* ============ 效果层: 粒子画布(最底) ============ */
+  #fx-particles{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+  /* ============ 效果层: CRT 扫描线 + 暗角(最顶,不挡交互) ============ */
+  #fx-crt{
+    position:fixed;inset:0;z-index:9999;pointer-events:none;
+    background:repeating-linear-gradient(0deg, rgba(0,0,0,0.13) 0 1px, transparent 1px 3px);
+    animation:crt-flicker 4s infinite;
+  }
+  #fx-crt::after{ /* 暗角, 模拟 CRT 玻璃曲率 */
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.35) 100%);
+  }
+  @keyframes crt-flicker{0%,100%{opacity:1}50%{opacity:.92}93%{opacity:.97}94%{opacity:.85}95%{opacity:.96}}
+
+  /* ============ 效果层: 扫描光带(周期性扫过) ============ */
+  #fx-sweep{
+    position:fixed;left:0;right:0;height:120px;z-index:9998;pointer-events:none;
+    background:linear-gradient(180deg, transparent, rgba(0,255,213,0.045) 45%, rgba(0,255,213,0.09) 50%, rgba(0,255,213,0.045) 55%, transparent);
+    animation:sweep 9s linear infinite;
+  }
+  @keyframes sweep{0%{top:-15%}100%{top:110%}}
+
+  /* ============ 效果层: synthwave 透视网格(页面底部) ============ */
+  #fx-grid{
+    position:fixed;left:-20%;right:-20%;bottom:-6vh;height:34vh;z-index:0;pointer-events:none;
+    background:
+      repeating-linear-gradient(90deg, rgba(0,255,213,0.07) 0 1px, transparent 1px 60px),
+      repeating-linear-gradient(0deg, rgba(0,255,213,0.07) 0 1px, transparent 1px 42px);
+    transform:perspective(320px) rotateX(58deg);
+    transform-origin:center top;
+    mask-image:linear-gradient(180deg, transparent, #000 35%);
+    animation:grid-move 3s linear infinite;
+  }
+  @keyframes grid-move{0%{background-position:0 0,0 0}100%{background-position:0 0,0 42px}}
+
+  /* ============ BOOT 开机序列 ============ */
+  #fx-boot{
+    position:fixed;inset:0;z-index:10000;background:var(--bg);
+    display:flex;flex-direction:column;justify-content:center;align-items:flex-start;
+    padding:0 18vw;font-size:13px;color:var(--accent);
+    text-shadow:0 0 8px rgba(0,255,213,.7);
+  }
+  #fx-boot.done{display:none}
+  #fx-boot .ok::before{content:'[ ';color:var(--dim)}#fx-boot .ok::after{content:' ]';color:var(--dim)}
+
+  main{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:18px}
+
+  /* ============ 标题 + glitch ============ */
+  header{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+  .title{
+    font-size:20px;font-weight:800;letter-spacing:2px;color:var(--accent);
+    text-shadow:0 0 6px rgba(0,255,213,.8),0 0 22px rgba(0,255,213,.35);
+    position:relative;cursor:default;
+  }
+  /* glitch: 低频触发(每6s), 用 clip-path 切片错位 */
+  .title.glitch{animation:glitch .32s steps(2) 1}
+  @keyframes glitch{
+    0%{transform:translate(0)}20%{transform:translate(-2px,1px);text-shadow:2px 0 var(--red),-2px 0 var(--blue)}
+    40%{transform:translate(2px,-1px);text-shadow:-2px 0 var(--red),2px 0 var(--blue)}
+    60%{transform:translate(-1px,0);clip-path:inset(20% 0 30% 0)}
+    80%{transform:translate(1px,1px);clip-path:inset(60% 0 5% 0)}
+    100%{transform:translate(0);clip-path:none}
+  }
+  .title-note{font-size:10px;color:var(--red);border:1px solid var(--red);padding:2px 8px;border-radius:4px;
+    text-shadow:0 0 6px rgba(234,57,67,.6);animation:note-blink 1.6s infinite}
+  @keyframes note-blink{0%,100%{opacity:1}50%{opacity:.55}}
+
+  /* ============ 统计卡(霓虹呼吸) ============ */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:12px;margin-bottom:14px}
+  .card{
+    background:linear-gradient(160deg,var(--panel),var(--panel2));
+    border:1px solid var(--border);border-radius:10px;padding:12px 14px;
+    animation:neon-breathe 3.4s ease-in-out infinite;
+  }
+  .card:nth-child(2n){animation-delay:1.2s}.card:nth-child(3n){animation-delay:2.1s}
+  @keyframes neon-breathe{
+    0%,100%{box-shadow:0 0 4px rgba(0,255,213,.06), inset 0 0 8px rgba(0,255,213,.02)}
+    50%{box-shadow:0 0 16px rgba(0,255,213,.18), inset 0 0 14px rgba(0,255,213,.05)}
+  }
+  .card .label{font-size:10px;color:var(--dim);margin-bottom:6px;letter-spacing:1px}
+  .card .value{font-size:22px;font-weight:700}
+  .card .sub{font-size:10px;color:var(--dim);margin-top:4px}
+  .glow-g{color:var(--green);text-shadow:0 0 8px rgba(22,199,132,.7)}
+  .glow-r{color:var(--red);text-shadow:0 0 8px rgba(234,57,67,.7)}
+  .glow-a{color:var(--accent);text-shadow:0 0 8px rgba(0,255,213,.7)}
+
+  /* 价格闪烁: 变动时整卡闪一下 */
+  .flash-up{animation:flash-up .5s ease-out}
+  .flash-down{animation:flash-down .5s ease-out}
+  @keyframes flash-up{0%{background:rgba(22,199,132,.22);box-shadow:0 0 24px rgba(22,199,132,.5)}100%{background:transparent}}
+  @keyframes flash-down{0%{background:rgba(234,57,67,.22);box-shadow:0 0 24px rgba(234,57,67,.5)}100%{background:transparent}}
+
+  /* ============ 主面板布局 ============ */
+  .panels{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .panel{
+    background:linear-gradient(160deg,var(--panel),var(--panel2));
+    border:1px solid var(--border);border-radius:10px;overflow:hidden;
+  }
+  .panel-title{
+    padding:9px 12px;font-size:12px;letter-spacing:1px;color:var(--accent);
+    text-shadow:0 0 8px rgba(0,255,213,.5);
+    border-bottom:1px solid var(--border);background:rgba(0,255,213,.03);
+    display:flex;align-items:center;gap:8px;
+  }
+  .panel-body{padding:12px;font-size:12px;min-height:130px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:dot-pulse 2s infinite}
+  @keyframes dot-pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+  /* 信号卡 */
+  .sig-dir{font-size:26px;font-weight:800;margin-bottom:8px}
+  .badge{font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid var(--green);color:var(--green);
+    text-shadow:0 0 6px rgba(22,199,132,.6);margin-left:10px}
+
+  /* 日志 */
+  .log-line{margin-bottom:3px;font-size:11px}
+  .L-time{color:var(--dim);margin-right:8px}
+  .L-I{color:var(--text)}.L-W{color:var(--yellow);text-shadow:0 0 6px rgba(240,185,11,.4)}
+  .L-E{color:var(--red);text-shadow:0 0 6px rgba(234,57,67,.5)}
+  .log-line.new{animation:log-in .4s ease-out}
+  @keyframes log-in{0%{opacity:0;transform:translateX(-8px)}100%{opacity:1;transform:none}}
+
+  /* 历史表 */
+  .wide{grid-column:1/-1}
+  table{width:100%;border-collapse:collapse;font-size:11px}
+  th{color:var(--dim);text-align:left;padding:5px 8px;border-bottom:1px solid var(--border);font-weight:400;letter-spacing:1px}
+  td{padding:5px 8px;border-bottom:1px solid rgba(30,30,63,.5)}
+  tr:hover td{background:rgba(0,255,213,.04)}
+  .chip{display:inline-block;font-size:9px;padding:1px 6px;border-radius:3px}
+  .chip-w{color:var(--green);border:1px solid var(--green);text-shadow:0 0 5px rgba(22,199,132,.5)}
+  .chip-l{color:var(--red);border:1px solid var(--red)}
+  .chip-p{color:var(--yellow);border:1px solid var(--yellow)}
+
+  /* 打字机效果行 */
+  #typeline{color:var(--blue);text-shadow:0 0 7px rgba(78,201,176,.55);font-size:11px;margin-top:10px;min-height:15px}
+  #typeline::after{content:'▊';animation:cursor-blink .9s steps(1) infinite;color:var(--accent)}
+  @keyframes cursor-blink{50%{opacity:0}}
+
+  .foot{margin-top:14px;font-size:10px;color:var(--dim);text-align:center;letter-spacing:1px}
+
+  /* 无障碍: 系统开了"减弱动态效果"时全部关闭 */
+  @media (prefers-reduced-motion: reduce){
+    *,#fx-crt,#fx-sweep,#fx-grid{animation:none !important}
+    #fx-particles,#fx-sweep{display:none}
+  }
+</style>
+</head>
+<body>
+
+<canvas id="fx-particles"></canvas>
+<div id="fx-grid"></div>
+<div id="fx-sweep"></div>
+<div id="fx-crt"></div>
+
+<div id="fx-boot"></div>
+
+<main>
+  <header>
+    <div class="title" id="gtitle">⚡ HERMES BTC TERMINAL</div>
+    <span class="title-note">◉ UI 样品 · 假数据预览</span>
+  </header>
+
+  <div class="cards">
+    <div class="card"><div class="label">🕐 时间 ET</div><div class="value glow-a" id="clock">--:--:--</div><div class="sub">UTC --:--</div></div>
+    <div class="card" id="btc-card"><div class="label">₿ BTC 现价</div><div class="value glow-a" id="btc">$109,247.5</div><div class="sub">锚定 $108,900.0</div></div>
+    <div class="card"><div class="label">📊 预测准确率</div><div class="value glow-g">66.8%</div><div class="sub">419W / 208L</div></div>
+    <div class="card"><div class="label">💰 实际成交战绩</div><div class="value glow-g">64.1%</div><div class="sub">152W / 85L · 未成交 12 单</div></div>
+    <div class="card"><div class="label">📈 成交口径累计盈亏</div><div class="value glow-r">−$154.21</div><div class="sub">237 笔真实成交单</div></div>
+  </div>
+
+  <div class="panels">
+    <div class="panel">
+      <div class="panel-title"><span class="dot"></span> 当前信号</div>
+      <div class="panel-body">
+        <div class="sig-dir glow-g">🔼 UP<span class="badge">📝 已下单</span></div>
+        <div style="margin-bottom:4px">合约: <span class="glow-a">bitcoin-up-or-down-september-2-8pm-et</span> | 概率: <span class="glow-a">67%</span></div>
+        <div style="margin-bottom:4px">金额: <span class="glow-a">$4.00</span> | 限价: <span class="glow-g">0.65</span> | 锚定价: <span class="glow-a">$108,900.0</span></div>
+        <div id="typeline"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title"><span class="dot"></span> 🤖 Bot 日志</div>
+      <div class="panel-body" id="logs"></div>
+    </div>
+
+    <div class="panel wide">
+      <div class="panel-title"><span class="dot"></span> 交易历史（最近）</div>
+      <div class="panel-body" style="min-height:0">
+        <table>
+          <thead><tr><th>时间</th><th>合约</th><th>方向</th><th>金额</th><th>成交</th><th>结果</th><th>盈亏</th></tr></thead>
+          <tbody id="hist"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">HERMES QUANT SYSTEM · ROUND53 · UI SAMPLE BUILD — 粒子/CRT/扫光/glitch/BOOT 全部为纯前端效果，可独立开关</div>
+</main>
+
+<script>
+/* ================= 开机序列(样品版: 每次刷新都放) ================= */
+const BOOT_LINES = [
+  'HERMES BIOS v53.0 ...',
+  'MEM CHECK 640K OK',
+  'LOADING  engine.btc-1h .......... <span class="ok">OK</span>',
+  'LOADING  signal.whitelist ....... <span class="ok">OK</span>',
+  'LOADING  chase.no-cap ........... <span class="ok">OK</span>',
+  'CONNECT clob.polymarket ......... <span class="ok">OK</span>',
+  'MODE    PAPER <span style="color:#f0b90b">[SIM]</span>',
+  'BOOT COMPLETE',
+];
+(function boot(){
+  const el = document.getElementById('fx-boot');
+  let i = 0;
+  const t = setInterval(()=>{
+    if(i < BOOT_LINES.length){
+      const d = document.createElement('div');
+      d.innerHTML = BOOT_LINES[i++];
+      el.appendChild(d);
+    }else{
+      clearInterval(t);
+      setTimeout(()=>{ el.classList.add('done'); el.remove(); }, 420);
+    }
+  }, 170);
+})();
+
+/* ================= 粒子星座背景 ================= */
+(function particles(){
+  const cv = document.getElementById('fx-particles'), ctx = cv.getContext('2d');
+  let W, H, pts = [], raf = null;
+  const N = 70, LINK = 130;          // 粒子数 / 连线距离阈值
+  function size(){
+    W = cv.width = innerWidth * devicePixelRatio;
+    H = cv.height = innerHeight * devicePixelRatio;
+    cv.style.width = innerWidth+'px'; cv.style.height = innerHeight+'px';
+  }
+  function init(){
+    size();
+    pts = Array.from({length:N}, ()=>({
+      x: Math.random()*W, y: Math.random()*H,
+      vx: (Math.random()-.5)*.22*devicePixelRatio,
+      vy: (Math.random()-.5)*.22*devicePixelRatio,
+      r: (Math.random()*1.6+.6)*devicePixelRatio,
+    }));
+  }
+  function frame(){
+    ctx.clearRect(0,0,W,H);
+    for(const p of pts){
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0||p.x>W) p.vx*=-1;
+      if(p.y<0||p.y>H) p.vy*=-1;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,7);
+      ctx.fillStyle = 'rgba(0,255,213,.55)';
+      ctx.shadowColor = 'rgba(0,255,213,.8)'; ctx.shadowBlur = 6*devicePixelRatio;
+      ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+    for(let i=0;i<pts.length;i++) for(let j=i+1;j<pts.length;j++){
+      const a=pts[i], b=pts[j], dx=a.x-b.x, dy=a.y-b.y, d=Math.hypot(dx,dy);
+      if(d < LINK*devicePixelRatio){
+        ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);
+        ctx.strokeStyle = `rgba(0,255,213,${(1-d/(LINK*devicePixelRatio))*.16})`;
+        ctx.lineWidth = devicePixelRatio*.6;
+        ctx.stroke();
+      }
+    }
+    raf = requestAnimationFrame(frame);
+  }
+  init(); frame();
+  addEventListener('resize', ()=>{ cancelAnimationFrame(raf); init(); frame(); });
+  // 页面隐藏时停渲染, 回来再启动 (省 GPU/电池)
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.hidden){ cancelAnimationFrame(raf); raf=null; }
+    else if(!raf) frame();
+  });
+})();
+
+/* ================= 标题 glitch (每 6s 一次, 低频克制) ================= */
+(function glitchLoop(){
+  const t = document.getElementById('gtitle');
+  setInterval(()=>{ t.classList.add('glitch'); setTimeout(()=>t.classList.remove('glitch'), 340); }, 6000);
+})();
+
+/* ================= BTC 价格模拟 + 涨跌闪卡 ================= */
+(function priceSim(){
+  let px = 109247.5;
+  const el = document.getElementById('btc'), card = document.getElementById('btc-card');
+  setInterval(()=>{
+    const old = px;
+    px += (Math.random()-.5)*38;
+    el.textContent = '$'+px.toLocaleString('en-US',{maximumFractionDigits:1});
+    card.classList.remove('flash-up','flash-down'); void card.offsetWidth; // 重触发动画
+    card.classList.add(px>old?'flash-up':'flash-down');
+  }, 1800);
+})();
+
+/* ================= 时钟 ================= */
+setInterval(()=>{
+  document.getElementById('clock').textContent =
+    new Date().toLocaleTimeString('en-US',{hour12:false});
+},1000);
+
+/* ================= 日志模拟(新行滑入) ================= */
+const LOG_POOL = [
+  ['I','[tick] 信号分析完成 p=0.671 方向=UP'],
+  ['I','[order] 首挂吃价 ask=0.645 ≤0.99 → taker 直接成交'],
+  ['I','[chase] 追价第2档 0.70 挂单中 (age=4m)'],
+  ['W','[guard] 交易所 503 trading is disabled → 静默期 10m'],
+  ['I','[paper] 模拟成交 FILLED $4.00 @0.645 paper_instant=true'],
+  ['I','[review] 本小时结算 WIN +$2.20'],
+  ['W','[risk] 余额查询超时 重试 1/3 (transient)'],
+  ['I','[tp] 距结算 4m32s 盈利 0.06 → 触发止盈卖出'],
+];
+let li = 0;
+(function logSim(){
+  const box = document.getElementById('logs');
+  function push(){
+    const [lv,msg] = LOG_POOL[li++ % LOG_POOL.length];
+    const d = document.createElement('div');
+    d.className = 'log-line new L-'+lv;
+    d.innerHTML = `<span class="L-time">${new Date().toLocaleTimeString('en-US',{hour12:false})}</span><span class="L-${lv}">${msg}</span>`;
+    box.prepend(d);
+    while(box.children.length>7) box.lastChild.remove();
+  }
+  for(let k=0;k<4;k++) push();
+  setInterval(push, 2600);
+})();
+
+/* ================= 打字机 ================= */
+(function typer(){
+  const texts = [
+    ' 分析中: 1h RSI=58.3 BB中轨上方 +2.1% ...',
+    ' 共振: 15m↗ 1h↗ 4h→ 综合偏多',
+    ' EV 估算: +0.081/单 | 盈亏平衡胜率 0.645',
+    ' 情景推演: 保守 109.8k / 基准 110.4k / 激进 111.2k',
+  ];
+  const el = document.getElementById('typeline');
+  let ti=0, ci=0, del=false;
+  (function tick(){
+    const t = texts[ti];
+    el.textContent = '⟩' + t.slice(0, ci);
+    if(!del){
+      if(ci++ > t.length){ del=true; setTimeout(tick, 1600); return; }
+    }else{
+      if(ci-- < 1){ del=false; ti=(ti+1)%texts.length; }
+    }
+    setTimeout(tick, del?16:42);
+  })();
+})();
+
+/* ================= 历史表假数据 ================= */
+(function hist(){
+  const rows = [
+    ['8pm','...september-2-8pm-et','UP','$4.00','✅','<span class="chip chip-p">待结算</span>','…'],
+    ['7pm','...september-2-7pm-et','DOWN','$4.00','✅','<span class="chip chip-w">WIN</span>','<span class="glow-g">+$2.20</span>'],
+    ['6pm','...september-2-6pm-et','UP','$4.00','✅','<span class="chip chip-l">LOSS</span>','<span class="glow-r">−$4.00</span>'],
+    ['5pm','...september-2-5pm-et','DOWN','$4.00','❌','<span class="chip chip-w">WIN</span>','<span style="color:var(--dim)">—</span>'],
+    ['4pm','...september-2-4pm-et','UP','$4.00','✅','<span class="chip chip-w">WIN</span>','<span class="glow-g">+$2.35</span>'],
+    ['3pm','...september-2-3pm-et','UP','$2.00','📝','<span class="chip chip-l">LOSS</span>','<span class="glow-r">−$2.00</span>'],
+  ];
+  document.getElementById('hist').innerHTML = rows.map(r=>
+    `<tr><td style="color:var(--dim)">${r[0]}</td><td style="color:var(--dim)">${r[1]}</td>
+     <td class="${r[2]==='UP'?'glow-g':'glow-r'}">${r[2]}</td><td>${r[3]}</td>
+     <td>${r[4]}</td><td>${r[5]}</td><td>${r[6]}</td></tr>`).join('');
+})();
+</script>
+</body>
+</html>

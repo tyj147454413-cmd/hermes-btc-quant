@@ -1,0 +1,4 @@
+slug,pm_traj_n,pm_up_dec,pm_delta,pm_traj_mean,pm_traj_std,pm_range,pm_last3_slope,pm_firsthalf_ret,pm_secondhalf_ret,pm_decel
+s0,3,0.55,0.05,0.5233,0.0205,0.05,0.001516,0.02,0.03,0.01
+s1,3,0.55,0.05,0.5233,0.0205,0.05,0.001516,0.02,0.03,0.01
+s2,3,0.55,0.05,0.5233,0.0205,0.05,0.001516,0.02,0.03,0.01

@@ -1,0 +1,224 @@
+{
+  "trained_at": "2026-09-04T11:36:41.929228+00:00",
+  "decision_min": 50,
+  "tag": "gs",
+  "model_basis": "random_split_topis",
+  "train_rows": 728,
+  "pm_rows_train": 40,
+  "days": 60,
+  "seed": 42,
+  "params": {
+    "objective": "binary",
+    "metric": "auc",
+    "verbosity": -1,
+    "num_leaves": 16,
+    "max_depth": 5,
+    "learning_rate": 0.05,
+    "n_estimators": 900,
+    "min_child_samples": 40,
+    "feature_fraction": 0.8,
+    "bagging_fraction": 0.8,
+    "bagging_freq": 1,
+    "reg_alpha": 0.3,
+    "reg_lambda": 2.0,
+    "seed": 42
+  },
+  "n_boost_rounds": 152,
+  "calibration": {
+    "x": [
+      0.003048,
+      0.009707,
+      0.009874,
+      0.020714,
+      0.020813,
+      0.177905,
+      0.226101,
+      0.323571,
+      0.359247,
+      0.814259,
+      0.816786,
+      0.982897,
+      0.983117,
+      0.99748
+    ],
+    "y": [
+      0.0,
+      0.0,
+      0.043478,
+      0.043478,
+      0.083333,
+      0.083333,
+      0.333333,
+      0.333333,
+      0.5,
+      0.5,
+      0.9,
+      0.9,
+      1.0,
+      1.0
+    ]
+  },
+  "features": [
+    "dev_pct",
+    "volatility_5m",
+    "pos24h_percentile",
+    "range_24h_pct",
+    "taker_1h_buy_pct",
+    "taker_5m_last",
+    "taker_15m",
+    "imb_5m",
+    "imb_15m",
+    "kline_15m",
+    "kline_1h",
+    "momentum_burst",
+    "macro_up_1h",
+    "macro_up_4h",
+    "rsi_1h",
+    "rsi_4h",
+    "bb_pos_1h",
+    "bb_pos_4h",
+    "macd_1h_hist",
+    "macd_4h_hist",
+    "vol_ratio_1h",
+    "prev_chg_pct",
+    "prev_consec",
+    "roll_up_6h",
+    "ret_24h",
+    "hist_up_rate",
+    "funding_rate",
+    "hour_sin",
+    "hour_cos",
+    "open_dir",
+    "open_range_pct",
+    "open_vol_ratio",
+    "pm_up_dec",
+    "pm_delta"
+  ],
+  "validation": {
+    "n": 183,
+    "pm_rows": 50,
+    "overall": {
+      "n": 183,
+      "acc": 0.9508,
+      "n@0.55": 179,
+      "hit@0.55": 0.9609,
+      "n@0.6": 179,
+      "hit@0.6": 0.9609,
+      "n@0.65": 179,
+      "hit@0.65": 0.9609
+    },
+    "compare_v1": {
+      "v_all": {
+        "v1": {
+          "n": 183,
+          "acc": 0.9508,
+          "n@0.55": 183,
+          "hit@0.55": 0.9508,
+          "n@0.6": 183,
+          "hit@0.6": 0.9508,
+          "n@0.65": 183,
+          "hit@0.65": 0.9508
+        },
+        "gs": {
+          "n": 183,
+          "acc": 0.9508,
+          "n@0.55": 179,
+          "hit@0.55": 0.9609,
+          "n@0.6": 179,
+          "hit@0.6": 0.9609,
+          "n@0.65": 179,
+          "hit@0.65": 0.9609
+        }
+      },
+      "v_pm": {
+        "v1": {
+          "n": 10,
+          "acc": 1.0,
+          "n@0.55": 10,
+          "hit@0.55": 1.0,
+          "n@0.6": 10,
+          "hit@0.6": 1.0,
+          "n@0.65": 10,
+          "hit@0.65": 1.0
+        },
+        "gs": {
+          "n": 10,
+          "acc": 1.0,
+          "n@0.55": 10,
+          "hit@0.55": 1.0,
+          "n@0.6": 10,
+          "hit@0.6": 1.0,
+          "n@0.65": 10,
+          "hit@0.65": 1.0
+        }
+      },
+      "n_pm_val": 10,
+      "flip_gs_wins": 1,
+      "flip_v1_wins": 1,
+      "v_pm_strong": {
+        "v1": {
+          "n": 9,
+          "acc": 1.0,
+          "n@0.55": 9,
+          "hit@0.55": 1.0,
+          "n@0.6": 9,
+          "hit@0.6": 1.0,
+          "n@0.65": 9,
+          "hit@0.65": 1.0
+        },
+        "gs": {
+          "n": 9,
+          "acc": 1.0,
+          "n@0.55": 9,
+          "hit@0.55": 1.0,
+          "n@0.6": 9,
+          "hit@0.6": 1.0,
+          "n@0.65": 9,
+          "hit@0.65": 1.0
+        }
+      }
+    }
+  },
+  "top10_importance": [
+    [
+      "dev_pct",
+      5581.772745341063
+    ],
+    [
+      "kline_15m",
+      905.2729530334473
+    ],
+    [
+      "open_dir",
+      348.7859130203724
+    ],
+    [
+      "momentum_burst",
+      102.8281419351697
+    ],
+    [
+      "pos24h_percentile",
+      80.37154961749911
+    ],
+    [
+      "prev_chg_pct",
+      74.85637208074331
+    ],
+    [
+      "taker_1h_buy_pct",
+      74.26614694297314
+    ],
+    [
+      "volatility_5m",
+      70.96623683720827
+    ],
+    [
+      "hour_sin",
+      58.812739446759224
+    ],
+    [
+      "macd_1h_hist",
+      54.370090240612626
+    ]
+  ]
+}

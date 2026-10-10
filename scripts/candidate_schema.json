@@ -1,0 +1,321 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://hermes.btc/schemas/candidate-patch.v1.json",
+  "title": "Hermes BTC Candidate Patch v1",
+  "description": "候选规则管道（学习系统阶段 2）单条候选的 JSON Schema 契约。权威校验器：scripts/candidate_pipeline.py。配套架构合约：docs/hermes_learning_architecture.md §6 / docs/hermes_candidate_pipeline_plan.md（plan-v1 锚点）。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "schema_version",
+    "created_at_utc",
+    "updated_at_utc",
+    "layer",
+    "condition",
+    "action",
+    "source",
+    "verification_status"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^cp-[0-9]{4}-[0-9]{4}-[0-9]{3}$",
+      "description": "候选 ID，格式 cp-YYYY-MMDD-NNN，按日期+当日序号；幂等键"
+    },
+    "schema_version": {
+      "const": "candidate-patch.v1",
+      "description": "锁版本，未来 schema 升级改 major 号"
+    },
+    "created_at_utc": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC，必须带时区"
+    },
+    "updated_at_utc": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC，每次状态迁移更新"
+    },
+    "layer": {
+      "type": "string",
+      "enum": ["统计层", "权重层", "结构层"],
+      "description": "三层之一；不同层有不同的验证门槛（架构文档 §2 / §6.3）"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": ["review", "drift_alert", "manual", "shadow"],
+      "description": "候选来源；review=复盘教训，drift_alert=漂移告警，manual=BOSS 手工，shadow=影子策略"
+    },
+    "source_event_ids": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "触发该候选的事件 ID 列表（review ID / drift_alert_id 等）"
+    },
+    "condition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expression", "field_paths"],
+      "properties": {
+        "expression": {
+          "type": "string",
+          "minLength": 1,
+          "description": "字符串化触发条件；round34.1 教训：禁止模糊字段名"
+        },
+        "field_paths": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1},
+          "description": "精确字段路径（judge.net / extract_factors.order_flow / timeframes.5m.recent_dir 等），用于反事实回放"
+        },
+        "operator": {
+          "type": "string",
+          "enum": ["and", "or"]
+        },
+        "thresholds": {
+          "type": "object",
+          "description": "数值阈值（key=字段路径，value=数值），反事实回放时使用"
+        },
+        "regime_filter": {
+          "type": ["string", "null"],
+          "description": "可选 regime 过滤（摆动市/趋势市/?）"
+        }
+      }
+    },
+    "action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "target"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["add", "modify", "remove_table_cell"]
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["file", "symbol"],
+          "properties": {
+            "file": {
+              "type": "string",
+              "enum": [
+                "scripts/rule_engine.py",
+                "scripts/signal_validator.py",
+                "scripts/hermes_1h_bot.py",
+                "scripts/write_signal.py"
+              ],
+              "description": "allowlist 内文件；prompt_exec.md / prompt.md 永不允许"
+            },
+            "symbol": {
+              "type": "string",
+              "minLength": 1,
+              "description": "目标符号（函数/常量名，如 _probability / judge）"
+            },
+            "table": {"type": ["string", "null"], "description": "可选：表名（如 probability_4d）"},
+            "cell": {"type": ["string", "null"], "description": "可选：单元格标签"}
+          }
+        },
+        "before": {
+          "type": "object",
+          "description": "modify/remove 必填：回滚用原值快照"
+        },
+        "after": {
+          "type": "object",
+          "description": "modify/add 必填：变更后值"
+        },
+        "expected_behavior": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["direction", "action", "probability", "ev", "cap", "confidence", "position_scale"]
+          },
+          "description": "期望影响的决策维度（反事实回放比对依据）"
+        },
+        "max_cells": {"type": "integer", "minimum": 0, "description": "学习率护栏：本轮落地最多改的格子数（≤2-3）"},
+        "max_weights": {"type": "integer", "minimum": 0, "description": "学习率护栏：本轮落地最多改的权重数（≤1）"}
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provenance_slugs", "strategy_version", "model_version"],
+      "properties": {
+        "slugs": {"type": "array", "items": {"type": "string"}, "description": "所有相关 slug（含触发+参考）"},
+        "provenance_slugs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string"},
+          "description": "触发该候选的源场次 slug 列表（不止最后一个；审计可重定位）"
+        },
+        "source_lessons": {"type": "array", "items": {"type": "string"}},
+        "source_files": {"type": "array", "items": {"type": "string"}, "description": "复盘引用的数据文件路径"},
+        "result_order_ids": {"type": "array", "items": {"type": "string"}},
+        "snapshot_paths": {"type": "array", "items": {"type": "string"}, "description": "快照路径列表（用于反事实重放）"},
+        "drift_alert_ids": {"type": "array", "items": {"type": "string"}},
+        "review_log_entries": {"type": "array", "items": {"type": "string"}},
+        "strategy_version": {"type": "string", "description": "候选产出时的策略版本（来自 write_signal 注入）"},
+        "model_version": {"type": "string", "description": "候选产出时的模型版本"}
+      }
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "proposed",
+        "accepted",
+        "deployed",
+        "monitoring",
+        "kept",
+        "reverted",
+        "rejected"
+      ],
+      "description": "流程状态（与 evidence 字段分离）"
+    },
+    "verification_evidence": {
+      "type": "string",
+      "enum": ["pending", "self_verified", "engine_verified"],
+      "description": "证据状态（与流程状态分离）"
+    },
+    "verification_detail": {
+      "type": "object",
+      "properties": {
+        "verified_at_utc": {"type": ["string", "null"], "format": "date-time"},
+        "verified_by": {"type": ["string", "null"]},
+        "method": {"type": ["string", "null"]},
+        "engine_sha256": {"type": ["string", "null"]},
+        "data_cutoff_utc": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "replay": {
+      "type": "object",
+      "description": "反事实回测结果（P1-2 candidate_counterfactual.py 填入）",
+      "properties": {
+        "command": {"type": "string"},
+        "replay_date_utc": {"type": ["string", "null"], "format": "date-time"},
+        "sample_count": {"type": "integer", "minimum": 0},
+        "changed_count": {"type": "integer", "minimum": 0},
+        "changed_dimensions": {
+          "type": "object",
+          "properties": {
+            "direction": {"type": "integer", "minimum": 0},
+            "action": {"type": "integer", "minimum": 0},
+            "ev": {"type": "integer", "minimum": 0},
+            "cap": {"type": "integer", "minimum": 0}
+          }
+        },
+        "flipped_correct": {"type": "integer", "minimum": 0},
+        "flipped_wrong": {"type": "integer", "minimum": 0},
+        "win_rate_delta": {"type": "number"},
+        "baseline_win_rate": {"type": "number"},
+        "variant_win_rate": {"type": "number"},
+        "baseline_win_rate_wilson95": {
+          "type": "array",
+          "items": {"type": "number"},
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "variant_win_rate_wilson95": {
+          "type": "array",
+          "items": {"type": "number"},
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "baseline_ev": {"type": "number"},
+        "variant_ev": {"type": "number"},
+        "ev_delta": {"type": "number"},
+        "ev_unit": {"type": "string"},
+        "net_effect": {"type": "number"},
+        "net_effect_type": {"type": "string"},
+        "net_effect_wilson95": {
+          "type": "object",
+          "properties": {
+            "method": {"type": "string"},
+            "lower": {"type": "number"},
+            "upper": {"type": "number"}
+          }
+        },
+        "paired_ev_bootstrap95": {
+          "type": "object",
+          "properties": {
+            "method": {"type": "string"},
+            "iterations": {"type": "integer", "minimum": 0},
+            "lower": {"type": "number"},
+            "upper": {"type": "number"}
+          }
+        },
+        "report_path": {"type": ["string", "null"]}
+      }
+    },
+    "monitoring": {
+      "type": "object",
+      "description": "30 场监控窗状态（P1-5 candidate_monitoring.py 填入）",
+      "properties": {
+        "deployed_at_utc": {"type": ["string", "null"], "format": "date-time"},
+        "window_start_utc": {"type": ["string", "null"], "format": "date-time"},
+        "window_end_utc": {"type": ["string", "null"], "format": "date-time"},
+        "target_sample_count": {"type": "integer", "minimum": 0},
+        "observed_sample_count": {"type": "integer", "minimum": 0},
+        "eligible_sample_count": {"type": "integer", "minimum": 0},
+        "result": {
+          "type": "string",
+          "enum": ["pending", "kept", "reverted", "inconclusive"]
+        },
+        "rollback_reason": {"type": ["string", "null"]},
+        "finalized_at_utc": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "approval": {
+      "type": "object",
+      "description": "BOSS 拍板 checklist（机器可读）",
+      "properties": {
+        "required": {"type": "boolean"},
+        "decision": {
+          "type": "string",
+          "enum": ["pending", "approved", "rejected"]
+        },
+        "decided_by": {"type": ["string", "null"]},
+        "decided_at_utc": {"type": ["string", "null"], "format": "date-time"},
+        "checklist": {
+          "type": "object",
+          "properties": {
+            "n_ge_30": {"type": "boolean"},
+            "behavior_changed": {"type": "boolean"},
+            "ev_positive": {"type": "boolean"},
+            "wilson_ci_positive": {"type": "boolean"},
+            "no_version_conflict": {"type": "boolean"},
+            "structure_scenarios_ge_3": {"type": "boolean"},
+            "selftest_passed": {"type": "boolean"},
+            "live_window_planned": {"type": "boolean"}
+          }
+        },
+        "note": {"type": ["string", "null"]}
+      }
+    },
+    "deployment": {
+      "type": "object",
+      "description": "部署清单（accepted → deployed 时填入）",
+      "properties": {
+        "committed": {"type": "boolean"},
+        "target_files": {"type": "array", "items": {"type": "string"}},
+        "original_sha256": {"type": "object", "description": "key=文件路径，value=原 sha256（回滚用）"},
+        "changed_symbols": {"type": "array", "items": {"type": "string"}},
+        "selftest_commands": {"type": "array", "items": {"type": "string"}},
+        "rollback_plan": {"type": "object"}
+      }
+    },
+    "history": {
+      "type": "array",
+      "description": "状态迁移流水（每次 update_candidate 追加一条）",
+      "items": {
+        "type": "object",
+        "required": ["at_utc", "from", "to", "actor", "reason"],
+        "properties": {
+          "at_utc": {"type": "string", "format": "date-time"},
+          "from": {"type": ["string", "null"]},
+          "to": {"type": "string"},
+          "actor": {"type": "string"},
+          "reason": {"type": "string"}
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,143 @@
+{
+  "trained_at": "2026-09-03T21:49:49.186606+00:00",
+  "decision_min": 55,
+  "tag": "dm55",
+  "model_basis": "last_walkforward_window",
+  "train_rows": 6275,
+  "calibration": {
+    "x": [
+      2.3e-05,
+      0.000704,
+      0.000704,
+      0.001574,
+      0.001576,
+      0.003946,
+      0.004121,
+      0.083467,
+      0.089678,
+      0.353693,
+      0.376431,
+      0.578305,
+      0.582813,
+      0.951824,
+      0.961398,
+      0.998129,
+      0.998151,
+      0.999971
+    ],
+    "y": [
+      0.0,
+      0.0,
+      0.019608,
+      0.019608,
+      0.022727,
+      0.022727,
+      0.047619,
+      0.047619,
+      0.7,
+      0.7,
+      0.833333,
+      0.833333,
+      0.85,
+      0.85,
+      0.989247,
+      0.989247,
+      1.0,
+      1.0
+    ]
+  },
+  "n_boost_rounds": 592,
+  "features": [
+    "dev_pct",
+    "volatility_5m",
+    "pos24h_percentile",
+    "range_24h_pct",
+    "taker_1h_buy_pct",
+    "taker_5m_last",
+    "taker_15m",
+    "imb_5m",
+    "imb_15m",
+    "kline_15m",
+    "kline_1h",
+    "momentum_burst",
+    "macro_up_1h",
+    "macro_up_4h",
+    "rsi_1h",
+    "rsi_4h",
+    "bb_pos_1h",
+    "bb_pos_4h",
+    "macd_1h_hist",
+    "macd_4h_hist",
+    "vol_ratio_1h",
+    "prev_chg_pct",
+    "prev_consec",
+    "roll_up_6h",
+    "ret_24h",
+    "hist_up_rate",
+    "funding_rate",
+    "hour_sin",
+    "hour_cos",
+    "open_dir",
+    "open_range_pct",
+    "open_vol_ratio"
+  ],
+  "params": {
+    "objective": "binary",
+    "metric": "auc",
+    "verbosity": -1,
+    "num_leaves": 31,
+    "max_depth": 6,
+    "learning_rate": 0.03,
+    "n_estimators": 2000,
+    "min_child_samples": 150,
+    "feature_fraction": 0.8,
+    "bagging_fraction": 0.8,
+    "bagging_freq": 1,
+    "reg_alpha": 0.1,
+    "reg_lambda": 1.0,
+    "seed": 42
+  },
+  "oos_auc": 0.9952269966381332,
+  "top10_importance": [
+    [
+      "dev_pct",
+      92040.92798101902
+    ],
+    [
+      "kline_15m",
+      9330.038505747914
+    ],
+    [
+      "open_dir",
+      3585.2761727273464
+    ],
+    [
+      "taker_1h_buy_pct",
+      2263.787785574794
+    ],
+    [
+      "momentum_burst",
+      1117.4380872328766
+    ],
+    [
+      "imb_15m",
+      932.3787042060867
+    ],
+    [
+      "open_range_pct",
+      881.523096836172
+    ],
+    [
+      "volatility_5m",
+      723.0116730417358
+    ],
+    [
+      "funding_rate",
+      712.0967433971819
+    ],
+    [
+      "pos24h_percentile",
+      688.1981637589633
+    ]
+  ]
+}

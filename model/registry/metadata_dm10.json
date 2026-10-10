@@ -1,0 +1,173 @@
+{
+  "trained_at": "2026-09-03T21:06:16.254921+00:00",
+  "decision_min": 10,
+  "tag": "dm10",
+  "model_basis": "last_walkforward_window",
+  "train_rows": 6275,
+  "calibration": {
+    "x": [
+      0.09736,
+      0.129991,
+      0.134449,
+      0.199534,
+      0.199761,
+      0.226097,
+      0.226115,
+      0.268629,
+      0.269395,
+      0.316008,
+      0.3162,
+      0.359455,
+      0.359583,
+      0.420779,
+      0.421157,
+      0.470315,
+      0.472436,
+      0.592624,
+      0.592781,
+      0.654535,
+      0.655795,
+      0.682895,
+      0.682914,
+      0.701909,
+      0.702056,
+      0.770252,
+      0.773086,
+      0.859788,
+      0.860678,
+      0.881215,
+      0.881627,
+      0.916131,
+      0.925302
+    ],
+    "y": [
+      0.0,
+      0.0,
+      0.186667,
+      0.186667,
+      0.1875,
+      0.1875,
+      0.220339,
+      0.220339,
+      0.253333,
+      0.253333,
+      0.33871,
+      0.33871,
+      0.375,
+      0.375,
+      0.431373,
+      0.431373,
+      0.6375,
+      0.6375,
+      0.645161,
+      0.645161,
+      0.692308,
+      0.692308,
+      0.705882,
+      0.705882,
+      0.780702,
+      0.780702,
+      0.835443,
+      0.835443,
+      0.857143,
+      0.857143,
+      0.866667,
+      0.866667,
+      1.0
+    ]
+  },
+  "n_boost_rounds": 105,
+  "features": [
+    "dev_pct",
+    "volatility_5m",
+    "pos24h_percentile",
+    "range_24h_pct",
+    "taker_1h_buy_pct",
+    "taker_5m_last",
+    "taker_15m",
+    "imb_5m",
+    "imb_15m",
+    "kline_15m",
+    "kline_1h",
+    "momentum_burst",
+    "macro_up_1h",
+    "macro_up_4h",
+    "rsi_1h",
+    "rsi_4h",
+    "bb_pos_1h",
+    "bb_pos_4h",
+    "macd_1h_hist",
+    "macd_4h_hist",
+    "vol_ratio_1h",
+    "prev_chg_pct",
+    "prev_consec",
+    "roll_up_6h",
+    "ret_24h",
+    "hist_up_rate",
+    "funding_rate",
+    "hour_sin",
+    "hour_cos",
+    "open_dir",
+    "open_range_pct",
+    "open_vol_ratio"
+  ],
+  "params": {
+    "objective": "binary",
+    "metric": "auc",
+    "verbosity": -1,
+    "num_leaves": 31,
+    "max_depth": 6,
+    "learning_rate": 0.03,
+    "n_estimators": 2000,
+    "min_child_samples": 150,
+    "feature_fraction": 0.8,
+    "bagging_fraction": 0.8,
+    "bagging_freq": 1,
+    "reg_alpha": 0.1,
+    "reg_lambda": 1.0,
+    "seed": 42
+  },
+  "oos_auc": 0.7647033040370107,
+  "top10_importance": [
+    [
+      "open_dir",
+      13932.121804714203
+    ],
+    [
+      "dev_pct",
+      5168.735261745751
+    ],
+    [
+      "open_range_pct",
+      1109.31302434206
+    ],
+    [
+      "range_24h_pct",
+      930.5228314995766
+    ],
+    [
+      "imb_15m",
+      659.3176294565201
+    ],
+    [
+      "hour_cos",
+      626.9832376241684
+    ],
+    [
+      "vol_ratio_1h",
+      614.158719420433
+    ],
+    [
+      "volatility_5m",
+      588.8039384186268
+    ],
+    [
+      "rsi_4h",
+      475.02151226997375
+    ],
+    [
+      "open_vol_ratio",
+      453.3162487745285
+    ]
+  ]
+}

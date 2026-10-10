@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hermes v2 — Quant Terminal 样品（假数据 · 参考RetroValix风格）</title>
+<style>
+  :root{
+    --bg:#05050e; --panel:#0a0a1a; --line:#141432;
+    --cyan:#00e5ff; --green:#16c784; --red:#ff3b5c; --yellow:#f0b90b;
+    --orange:#ff9f43; --blue:#4ec9b0; --text:#c8d0e0; --dim:#555a78;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:'SF Mono','Cascadia Code',Consolas,monospace;overflow-x:hidden}
+  ::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-thumb{background:var(--line)}
+
+  /* ===== 粒子底层 ===== */
+  #fx-particles{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.55}
+  /* ===== CRT ===== */
+  #fx-crt{position:fixed;inset:0;z-index:9999;pointer-events:none;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,.10) 0 1px,transparent 1px 3px);
+    animation:flick 5s infinite}
+  @keyframes flick{0%,100%{opacity:1}92%{opacity:.96}93%{opacity:.86}94%{opacity:.97}}
+  #fx-crt::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 58%,rgba(0,0,5,.42))}
+
+  .wrap{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:10px}
+
+  /* ===== 顶栏 ===== */
+  .topbar{display:flex;align-items:center;gap:14px;padding:8px 12px;border:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+  .brand{color:var(--cyan);font-weight:800;letter-spacing:1px;font-size:14px;text-shadow:0 0 10px rgba(0,229,255,.8)}
+  .brand small{color:var(--dim);font-weight:400}
+  .params{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+  .param{font-size:9px;color:var(--dim);border:1px solid var(--line);padding:2px 7px;letter-spacing:.5px;white-space:nowrap}
+  .param b{color:var(--cyan);font-weight:400}
+  .clock{color:var(--red);font-size:14px;font-weight:700;text-shadow:0 0 8px rgba(255,59,92,.6)}
+  .px{color:var(--green);font-size:13px;font-weight:700;text-shadow:0 0 8px rgba(22,199,132,.5)}
+
+  /* ===== LIVE FEED 跑马灯 ===== */
+  .feed{overflow:hidden;border:1px solid var(--line);border-top:none;background:#030309;padding:4px 0;white-space:nowrap}
+  .feed-inner{display:inline-block;animation:marq 26s linear infinite;font-size:10px}
+  .feed-inner b{color:var(--cyan);font-weight:400}
+  .feed-inner .g{color:var(--green)}.feed-inner .r{color:var(--red)}.feed-inner .y{color:var(--yellow)}
+  @keyframes marq{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+  /* ===== 主网格 ===== */
+  .grid{display:grid;grid-template-columns:300px 1fr 320px;gap:8px;margin-top:8px}
+  .panel{border:1px solid var(--line);background:rgba(10,10,26,.88);position:relative}
+  .pt{font-size:9px;letter-spacing:1px;color:var(--cyan);padding:6px 9px;border-bottom:1px solid var(--line);text-shadow:0 0 8px rgba(0,229,255,.5)}
+  .pt::before{content:'● ';font-size:7px;vertical-align:1px}
+  .pt .tag{float:right;color:var(--bg);background:var(--cyan);padding:0 5px;border-radius:2px;font-weight:700}
+  .pb{padding:9px}
+
+  /* 大字收益 */
+  .pnl-big{font-size:44px;font-weight:800;color:var(--green);text-shadow:0 0 18px rgba(22,199,132,.75),0 0 60px rgba(22,199,132,.3);
+    font-variant-numeric:tabular-nums;letter-spacing:-1px;line-height:1.05}
+  .pnl-sub{display:flex;justify-content:space-between;font-size:9px;color:var(--dim);margin-top:7px;gap:4px;flex-wrap:wrap}
+  .pnl-sub b{color:var(--text);font-weight:400}
+  .kpi{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:9px}
+  .kpi>div{border:1px solid var(--line);padding:5px 7px;font-size:9px;color:var(--dim)}
+  .kpi b{display:block;font-size:15px;color:var(--cyan);text-shadow:0 0 8px rgba(0,229,255,.55);font-weight:700;margin-top:2px}
+  .blink-up{animation:fup .5s}
+  @keyframes fup{0%{color:#fff;text-shadow:0 0 22px rgba(22,199,132,1)}100%{}}
+
+  /* ===== 因子对抗条 (UP vs DOWN) ===== */
+  .vs-head{display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin:4px 0 5px}
+  .vs-bar{display:flex;height:16px;border:1px solid var(--line);background:#060614;overflow:hidden}
+  .vs-bar .up{background:linear-gradient(90deg,rgba(22,199,132,.25),var(--green));box-shadow:0 0 12px rgba(22,199,132,.5);
+    transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
+  .vs-bar .dn{flex:1;background:linear-gradient(90deg,var(--red),rgba(255,59,92,.25));box-shadow:0 0 12px rgba(255,59,92,.4);
+    transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
+  .vs-mid{display:flex;justify-content:space-between;font-size:9px;color:var(--dim);margin-top:3px}
+
+  /* 因子逐项打分 */
+  .frow{display:grid;grid-template-columns:74px 1fr 40px;gap:7px;align-items:center;margin-top:7px;font-size:9px}
+  .frow .fn{color:var(--dim);letter-spacing:.5px}
+  .frow .fbar{height:8px;background:#060614;border:1px solid var(--line);position:relative;overflow:hidden}
+  .frow .fbar i{position:absolute;inset:0;width:0;background:linear-gradient(90deg,rgba(0,229,255,.3),var(--cyan));
+    box-shadow:0 0 8px rgba(0,229,255,.5);transition:width 1s ease-out}
+  .frow .fbar.neg i{background:linear-gradient(90deg,rgba(255,159,67,.3),var(--orange));box-shadow:0 0 8px rgba(255,159,67,.5)}
+  .frow .fv{color:var(--cyan);text-align:right;text-shadow:0 0 6px rgba(0,229,255,.5)}
+  .frow .fv.neg{color:var(--orange)}
+  .fverdict{margin-top:10px;padding:6px 8px;border:1px dashed var(--line);font-size:10px;color:var(--dim);min-height:32px}
+  .fverdict b{color:var(--yellow);font-weight:400}
+
+  /* ===== 点阵球 ===== */
+  #sphere-box{position:relative;height:378px;background:radial-gradient(circle at 50% 45%,rgba(0,229,255,.05),transparent 60%)}
+  #sphere{width:100%;height:100%;display:block}
+  .sphere-cap{position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:8px;color:var(--dim);letter-spacing:1px}
+
+  /* ===== sparkline 卡阵 ===== */
+  .sparkgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .scard{border:1px solid var(--line);background:#060614;padding:6px 8px}
+  .scard .sh{display:flex;justify-content:space-between;font-size:9px;color:var(--dim)}
+  .scard .sh b{color:var(--text);font-weight:400}
+  .scard .sn{font-size:21px;font-weight:800;margin:2px 0;color:var(--cyan);text-shadow:0 0 9px rgba(0,229,255,.55)}
+  .scard .sn.g{color:var(--green);text-shadow:0 0 9px rgba(22,199,132,.55)}
+  .scard .sn.r{color:var(--red);text-shadow:0 0 9px rgba(255,59,92,.55)}
+  .scard canvas{width:100%;height:30px;display:block}
+
+  /* ===== 结算热力网格 ===== */
+  .heat{display:grid;grid-template-columns:repeat(12,1fr);gap:3px}
+  .hcell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:8px;border-radius:2px;color:#02020a;font-weight:700;
+    animation:pop .4s ease-out backwards}
+  @keyframes pop{0%{transform:scale(.3);opacity:0}100%{transform:scale(1);opacity:1}}
+  .hw{background:var(--green);box-shadow:0 0 6px rgba(22,199,132,.45)}
+  .hl{background:var(--red);box-shadow:0 0 6px rgba(255,59,92,.4)}
+  .hp{background:var(--yellow);box-shadow:0 0 6px rgba(240,185,11,.45);animation:ppulse 1.4s infinite}
+  @keyframes ppulse{50%{opacity:.45}}
+  .hleg{display:flex;gap:12px;font-size:8px;color:var(--dim);margin-top:7px}
+  .hleg i{display:inline-block;width:7px;height:7px;border-radius:1px;margin-right:3px}
+
+  /* ===== 决策链 ===== */
+  .chain{display:flex;align-items:center;justify-content:space-between;padding:14px 10px 10px}
+  .node{text-align:center;position:relative;z-index:1}
+  .nc{width:52px;height:52px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;
+    font-size:8px;color:var(--dim);background:#060614;margin:0 auto 5px;transition:all .5s}
+  .node.on .nc{border-color:var(--green);color:var(--green);box-shadow:0 0 14px rgba(22,199,132,.55);text-shadow:0 0 6px rgba(22,199,132,.6)}
+  .node.cur .nc{border-color:var(--yellow);color:var(--yellow);box-shadow:0 0 18px rgba(240,185,11,.7);animation:npulse 1.1s infinite}
+  @keyframes npulse{50%{transform:scale(1.09)}}
+  .nl{flex:1;height:2px;background:var(--line);margin:0 3px 22px;position:relative;overflow:hidden}
+  .nl i{position:absolute;inset:0;background:var(--green);box-shadow:0 0 8px var(--green);transform:scaleX(0);transform-origin:left;transition:transform .8s}
+  .nl.on i{transform:scaleX(1)}
+
+  /* 频谱条 */
+  #spec{width:100%;height:56px;display:block}
+
+  .foot{margin-top:8px;border:1px solid var(--line);background:var(--panel);padding:5px 12px;font-size:9px;color:var(--dim);
+    display:flex;justify-content:space-between;letter-spacing:.5px}
+  .foot b{color:var(--cyan);font-weight:400}
+
+  @media (prefers-reduced-motion:reduce){*,#fx-crt{animation:none!important}#fx-particles{display:none}}
+  @media (max-width:1100px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<canvas id="fx-particles"></canvas>
+<div id="fx-crt"></div>
+
+<div class="wrap">
+  <!-- 顶栏 -->
+  <div class="topbar">
+    <div class="brand">◉ HERMES <small>// POLYMARKET BTC 1H</small></div>
+    <div class="params">
+      <span class="param">MODE <b>PAPER</b></span>
+      <span class="param">ENGINE <b>BTC-AGENT v53</b></span>
+      <span class="param">CHASE <b>NO-CAP</b></span>
+      <span class="param">FIRST-ORDER <b>TAKER@ASK</b></span>
+      <span class="param">ANCHOR <b>$108,900.0</b></span>
+      <span class="param">P(RAW) <b>0.671</b></span>
+      <span class="param">EDGE <b>+3.4¢</b></span>
+    </div>
+    <div class="px" id="btc">$109,247.5</div>
+    <div class="clock" id="clock">20:47:24 UTC</div>
+  </div>
+
+  <!-- LIVE FEED -->
+  <div class="feed"><div class="feed-inner" id="feed"></div></div>
+
+  <div class="grid">
+    <!-- 左: 大字收益 + KPI + 因子打分 -->
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="panel">
+        <div class="pt">PAPER PNL — 成交口径 <span class="tag">LIVE</span></div>
+        <div class="pb">
+          <div class="pnl-big" id="pnl">−$154.21</div>
+          <div class="pnl-sub"><span>FILLS <b>237</b></span><span>WIN RATE <b>64.1%</b></span><span>AVG <b>−$0.65</b></span></div>
+          <div class="kpi">
+            <div>WINDOWS<b>1,902</b></div>
+            <div>TRADES 24H<b>12</b></div>
+            <div>CHASE FILL<b>38.2%</b></div>
+            <div>AVG EDGE<b>+3.1¢</b></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel" style="flex:1">
+        <div class="pt">ENGINE FACTORS — 因子打分 <span class="tag" id="fside">UP</span></div>
+        <div class="pb">
+          <div class="vs-head"><span class="glow-g" style="color:var(--green)">🔼 UP <b id="sup">67</b></span><span style="color:var(--red)">DOWN <b id="sdn">33</b> 🔽</span></div>
+          <div class="vs-bar"><div class="up" id="bup" style="width:0%"></div><div class="dn"></div></div>
+          <div class="vs-mid"><span id="fcons">1h↗ 15m↗ 4h→</span><span>consensus</span></div>
+          <div id="frows"></div>
+          <div class="fverdict" id="fverdict">引擎判定中...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 中: 点阵球 + 频谱 -->
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="panel">
+        <div class="pt">NEURAL SHELL — 信号空间 <span class="tag">32 NODES</span></div>
+        <div id="sphere-box"><canvas id="sphere"></canvas><div class="sphere-cap">EACH NODE = ONE 1H WINDOW · DISTANCE = PROBABILITY SIMILARITY</div></div>
+      </div>
+      <div class="panel">
+        <div class="pt">MATCH ENGINE — 成交流 <span class="tag">REALTIME</span></div>
+        <div class="pb" style="padding:6px"><canvas id="spec"></canvas></div>
+      </div>
+    </div>
+
+    <!-- 右: sparkline 卡阵 + 热力网格 -->
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="panel">
+        <div class="pt">TIMEFRAME SCORES — 多周期</div>
+        <div class="pb sparkgrid" id="sparks"></div>
+      </div>
+      <div class="panel">
+        <div class="pt">RESOLUTION GRID — 近 36 期结算</div>
+        <div class="pb">
+          <div class="heat" id="heat"></div>
+          <div class="hleg">
+            <span><i class="hw"></i>WIN</span><span><i class="hl"></i>LOSS</span><span><i class="hp"></i>PENDING</span><span style="margin-left:auto">¢ = 成交价</span>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="pt">DECISION CHAIN — 决策流</div>
+        <div class="chain" id="chain">
+          <div class="node" data-n="0"><div class="nc">SIGNAL</div>信号</div>
+          <div class="nl"><i></i></div>
+          <div class="node" data-n="1"><div class="nc">RISK</div>风控</div>
+          <div class="nl"><i></i></div>
+          <div class="node" data-n="2"><div class="nc">ORDER</div>下单</div>
+          <div class="nl"><i></i></div>
+          <div class="node" data-n="3"><div class="nc">CHASE</div>追价</div>
+          <div class="nl"><i></i></div>
+          <div class="node" data-n="4"><div class="nc">FILL</div>成交</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span><b>HERMES QUANT</b> · UI SAMPLE v2 · 假数据预览</span>
+    <span>TRADES 24H <b>12</b> · FILLS 24H <b>3,682</b></span>
+  </div>
+</div>
+
+<script>
+/* ================= BOOT 后元素入场由各模块自带 ================= */
+
+/* ================= 顶部时钟/BTC ================= */
+setInterval(()=>{document.getElementById('clock').textContent=new Date().toLocaleTimeString('en-US',{hour12:false})+' UTC'},1000);
+(function(){let px=109247.5;const el=document.getElementById('btc');
+setInterval(()=>{px+=(Math.random()-.5)*36;el.textContent='$'+px.toLocaleString('en-US',{maximumFractionDigits:1});el.classList.remove('blink-up');void el.offsetWidth;el.classList.add('blink-up')},2000)})();
+
+/* ================= LIVE FEED 跑马灯 ================= */
+(function(){
+  const items=[
+    '<b>[SIGNAL]</b> 1h 分析完成 p=0.671 方向=<span class="g">UP</span>',
+    '<b>[ORDER]</b> 首挂 taker 吃价 ask=0.645 → <span class="g">FILLED $4.00</span>',
+    '<b>[CHASE]</b> 追价第2档 0.70 挂单 age=4m',
+    '<b>[TP]</b> 距结算 4m32s 盈利 +0.06 → <span class="g">止盈卖出</span>',
+    '<b>[GUARD]</b> 交易所 <span class="r">503 disabled</span> → 静默 10m',
+    '<b>[PAPER]</b> 模拟成交 <span class="g">+$2.20</span> paper_instant=true',
+    '<b>[RISK]</b> 余额查询超时 <span class="y">重试 1/3 transient</span>',
+    '<b>[REVIEW]</b> 7pm 结算 <span class="g">WIN</span> +$2.20 · 胜率 64.1%',
+  ];
+  const half=items.map(s=>`<span style="margin-right:34px">${s}</span>`).join('');
+  document.getElementById('feed').innerHTML=half+half;
+})();
+
+/* ================= 大字 PnL 跳动 ================= */
+(function(){let v=-154.21;const el=document.getElementById('pnl');
+setInterval(()=>{v+=(Math.random()-.5)*1.1;
+el.textContent=(v>=0?'+$':'−$')+Math.abs(v).toFixed(2);
+el.style.color=el.style.textShadow='';
+if(v>=0){el.style.color='var(--green)'}},2600)})();
+
+/* ================= 因子打分动态区 ================= */
+const FACTORS=[
+  {name:'TREND_ENV', label:'趋势环境', val:78, neg:false, note:'1h EMA 上方 +2.1% 多头排列'},
+  {name:'CAPITAL',   label:'资金面',   val:64, neg:false, note:'主动买盘占比 58% · 净流入'},
+  {name:'SENTIMENT', label:'情绪',    val:71, neg:false, note:'恐贪 62 · funding 正常'},
+  {name:'MOMENTUM',  label:'动量',    val:73, neg:false, note:'15m/1h RSI 多头共振 58.3'},
+  {name:'VOL_RATIO', label:'量能',    val:41, neg:true,  note:'量比 0.87 缩量 · 反弹力度存疑'},
+  {name:'BB_POS',    label:'布林位置', val:55, neg:false, note:'中轨上方 64% 带宽'},
+  {name:'EV_EDGE',   label:'EV 边际', val:68, neg:false, note:'+3.4¢ · 盈亏平衡胜率 0.645'},
+];
+(function factors(){
+  // UP/DOWN 对抗条
+  setTimeout(()=>{document.getElementById('bup').style.width='67%'},300);
+  // 数字滚动
+  rollNum(document.getElementById('sup'),0,67,900);
+  rollNum(document.getElementById('sdn'),0,33,900);
+  // 因子逐项入场 (间隔 240ms 逐个亮起)
+  const box=document.getElementById('frows');
+  FACTORS.forEach((f,i)=>{
+    const r=document.createElement('div');
+    r.className='frow';r.style.opacity='0';r.style.transform='translateX(-10px)';
+    r.style.transition='all .45s ease-out';
+    r.innerHTML=`<span class="fn">${f.label}</span><span class="fbar${f.neg?' neg':''}"><i></i></span><span class="fv${f.neg?' neg':''}">0%</span>`;
+    box.appendChild(r);
+    setTimeout(()=>{
+      r.style.opacity='1';r.style.transform='none';
+      r.querySelector('.fbar i').style.width=f.val+'%';
+      rollNum(r.querySelector('.fv'),0,f.val,700,f.neg);
+    },500+i*240);
+  });
+  // 判定词
+  const v=document.getElementById('fverdict');
+  setTimeout(()=>{
+    v.innerHTML=`⟶ 引擎判定: <b>UP · p=0.671</b> · 综合分 71/100<br>口径: 六因子加权 + 多周期共振 · EV +3.4¢ → 挂 0.65 追价无上限`;
+  },500+FACTORS.length*240+400);
+  // 判定词周期刷新微调(模拟引擎重算)
+  setInterval(()=>{
+    FACTORS.forEach((f,i)=>{
+      const fv=document.querySelectorAll('.fv')[i];
+      const nv=Math.max(5,Math.min(95,f.val+Math.round((Math.random()-.5)*8)));
+      fv.textContent=nv+'%';
+      document.querySelectorAll('.fbar i')[i].style.width=nv+'%';
+    });
+  },4000);
+})();
+function rollNum(el,from,to,ms,neg){
+  const t0=performance.now();
+  (function f(t){const p=Math.min(1,(t-t0)/ms);const e=1-Math.pow(1-p,3);
+    el.textContent=Math.round(from+(to-from)*e)+(neg?'%':'');
+    if(p<1)requestAnimationFrame(f)})(t0);
+}
+
+/* ================= 点阵球 (canvas 2D 伪3D) ================= */
+(function sphere(){
+  const cv=document.getElementById('sphere'),ctx=cv.getContext('2d');
+  let W,H,raf;
+  // 32 节点 = 32 个 1h 窗口, 斐波那契均匀分布球面
+  const N=32, nodes=[];
+  for(let i=0;i<N;i++){
+    const y=1-(i/(N-1))*2, r=Math.sqrt(1-y*y), th=i*2.39996;
+    nodes.push({x:Math.cos(th)*r,y,y:Math.sin(th)*r,
+      hue:Math.random()<.55?'g':(Math.random()<.5?'r':'y'), // win/loss/pending
+      glow:Math.random()});
+  }
+  function size(){const b=cv.parentElement.getBoundingClientRect();
+    W=cv.width=b.width*devicePixelRatio;H=cv.height=b.height*devicePixelRatio}
+  function frame(t){
+    ctx.clearRect(0,0,W,H);
+    const cx=W/2,cy=H/2,R=Math.min(W,H)*.36,rot=t*.00028;
+    const proj=nodes.map(n=>{
+      const x=n.x*Math.cos(rot)-n.z*Math.sin(rot);
+      const z=n.x*Math.sin(rot)+n.z*Math.cos(rot);
+      const s=1/(2.2-z*.9); // 透视
+      return {sx:cx+x*R*s*2.2, sy:cy+n.y*R*s*2.2, s, z, n};
+    }).sort((a,b)=>a.z-b.z);
+    // 连线: 近邻
+    for(let i=0;i<proj.length;i++)for(let j=i+1;j<proj.length;j++){
+      const a=proj[i],b=proj[j],d=Math.hypot(a.sx-b.sx,a.sy-b.sy);
+      if(d<R*.75){ctx.beginPath();ctx.moveTo(a.sx,a.sy);ctx.lineTo(b.sx,b.sy);
+        ctx.strokeStyle=`rgba(0,229,255,${(1-d/(R*.75))*.14})`;ctx.lineWidth=devicePixelRatio*.7;ctx.stroke()}
+    }
+    // 节点: 双层圆盘(仿参考图圆环节点)
+    for(const p of proj){
+      const col=p.n.hue==='g'?'22,199,132':p.n.hue==='r'?'255,59,92':'240,185,11';
+      const rr=(5+p.n.glow*4)*p.s*devicePixelRatio;
+      ctx.beginPath();ctx.arc(p.sx,p.sy,rr*2.1,0,7);
+      ctx.fillStyle=`rgba(${col},.08)`;ctx.fill();
+      ctx.beginPath();ctx.arc(p.sx,p.sy,rr,0,7);
+      ctx.fillStyle=`rgba(${col},${.25+.5*p.s})`;ctx.shadowColor=`rgba(${col},.9)`;ctx.shadowBlur=10*p.s*devicePixelRatio;ctx.fill();
+      ctx.beginPath();ctx.arc(p.sx,p.sy,rr*.45,0,7);ctx.fillStyle=`rgba(${col},.95)`;ctx.fill();
+      ctx.shadowBlur=0;
+    }
+    raf=requestAnimationFrame(frame);
+  }
+  size();frame();
+  addEventListener('resize',()=>{cancelAnimationFrame(raf);size();frame()});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)cancelAnimationFrame(raf);else frame()});
+})();
+
+/* ================= sparkline 卡阵 (真实字段: 15m/1h/4h) ================= */
+const TFS=[
+  {tf:'15m',rsi:56.2,bb:71,vol:1.24,dir:1},
+  {tf:'1h', rsi:58.3,bb:64,vol:0.87,dir:1},
+  {tf:'4h', rsi:49.1,bb:48,vol:1.05,dir:0},
+  {tf:'EV', rsi:null,bb:null,vol:null,ev:'+3.4¢'},
+];
+(function sparks(){
+  const box=document.getElementById('sparks');
+  TFS.forEach((d,i)=>{
+    const c=document.createElement('div');c.className='scard';
+    const big=d.ev?d.ev:(d.dir?'↗':'→');
+    const cls=d.ev?'':(d.dir?'g':'');
+    c.innerHTML=`<div class="sh"><b>${d.tf}</b><span>RSI ${d.rsi??'--'}</span></div>
+      <div class="sn ${cls}">${big}</div>
+      <canvas width="200" height="30"></canvas>`;
+    box.appendChild(c);
+    drawSpark(c.querySelector('canvas'),d,i);
+  });
+  function drawSpark(cv,d,seed){
+    const ctx=cv.getContext('2d');let t=0;
+    (function f(){
+      ctx.clearRect(0,0,200,30);
+      ctx.beginPath();
+      for(let x=0;x<200;x+=2){
+        const y=15+Math.sin(x*.05+t*.03+seed*2)*6+Math.sin(x*.013-t*.01)*4-(d.dir?x*.015:0);
+        x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+      }
+      const col=d.dir?'rgba(22,199,132,.85)':'rgba(0,229,255,.8)';
+      ctx.strokeStyle=col;ctx.lineWidth=1.4;ctx.shadowColor=col;ctx.shadowBlur=5;ctx.stroke();
+      t++;requestAnimationFrame(f);
+    })();
+  }
+})();
+
+/* ================= 结算热力网格 (36 期) ================= */
+(function heat(){
+  const box=document.getElementById('heat');
+  const seq=['W','W','L','W','W','L','L','W','W','P','W','L','W','W','L','W','P','W','L','W','W','L','W','W','L','P','W','W','L','W','L','W','W','L','W','W'];
+  const prices=['65','48','82','55','70','38','92','61','77','—','58','33','84','49','71','66','—','80','42','75','57','36','88','63','74','—','52','69','31','86','47','78','59','35','81','72'];
+  seq.forEach((r,i)=>{
+    const d=document.createElement('div');
+    d.className='hcell '+(r==='W'?'hw':r==='L'?'hl':'hp');
+    d.textContent=prices[i];
+    d.style.animationDelay=(i*45)+'ms';
+    box.appendChild(d);
+  });
+})();
+
+/* ================= 决策链轮播 ================= */
+(function chain(){
+  const nodes=[...document.querySelectorAll('.node')],links=[...document.querySelectorAll('.nl')];
+  let step=-1;
+  setInterval(()=>{
+    step=(step+1)%(nodes.length+1);
+    nodes.forEach((n,i)=>{n.classList.toggle('on',i<step);n.classList.toggle('cur',i===step)});
+    links.forEach((l,i)=>l.classList.toggle('on',i<step));
+  },1400);
+})();
+
+/* ================= 频谱 ================= */
+(function spec(){
+  const cv=document.getElementById('spec'),ctx=cv.getContext('2d');
+  const bars=72;let t=0;
+  (function f(){
+    const b=cv.parentElement.getBoundingClientRect();
+    cv.width=b.width*devicePixelRatio;cv.height=56*devicePixelRatio;
+    ctx.clearRect(0,0,cv.width,cv.height);
+    const bw=cv.width/bars;
+    for(let i=0;i<bars;i++){
+      const v=Math.abs(Math.sin(i*.23+t*.05)+Math.sin(i*.07-t*.02))*.5+Math.random()*.25;
+      const h=v*cv.height*.85;
+      const col=v>.66?'22,199,132':v>.4?'240,185,11':'255,59,92';
+      ctx.fillStyle=`rgba(${col},.75)`;
+      ctx.fillRect(i*bw+1,cv.height-h,bw-2,h);
+    }
+    t++;requestAnimationFrame(f);
+  })();
+})();
+
+/* ================= 粒子背景 (v1 同款精简) ================= */
+(function(){
+  const cv=document.getElementById('fx-particles'),ctx=cv.getContext('2d');
+  let W,H,pts=[],raf;const N=55;
+  function size(){W=cv.width=innerWidth*devicePixelRatio;H=cv.height=innerHeight*devicePixelRatio;
+    cv.style.width=innerWidth+'px';cv.style.height=innerHeight+'px'}
+  function init(){size();pts=Array.from({length:N},()=>({x:Math.random()*W,y:Math.random()*H,
+    vx:(Math.random()-.5)*.2*devicePixelRatio,vy:(Math.random()-.5)*.2*devicePixelRatio,r:Math.random()*1.5*devicePixelRatio+.5}))}
+  function frame(){ctx.clearRect(0,0,W,H);
+    for(const p of pts){p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fillStyle='rgba(0,229,255,.5)';ctx.fill()}
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+      const a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);
+      if(d<120*devicePixelRatio){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);
+        ctx.strokeStyle=`rgba(0,229,255,${(1-d/(120*devicePixelRatio))*.12})`;ctx.stroke()}}
+    raf=requestAnimationFrame(frame)}
+  init();frame();
+  addEventListener('resize',()=>{cancelAnimationFrame(raf);init();frame()});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)cancelAnimationFrame(raf);else frame()});
+})();
+</script>
+</body>
+</html>

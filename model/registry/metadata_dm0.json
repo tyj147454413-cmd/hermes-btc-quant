@@ -1,0 +1,143 @@
+{
+  "trained_at": "2026-09-03T21:49:54.197130+00:00",
+  "decision_min": 0,
+  "tag": "dm0",
+  "model_basis": "last_walkforward_window",
+  "train_rows": 6275,
+  "calibration": {
+    "x": [
+      0.129288,
+      0.189606,
+      0.189785,
+      0.284517,
+      0.284695,
+      0.44258,
+      0.443942,
+      0.451114,
+      0.451132,
+      0.587284,
+      0.588497,
+      0.712181,
+      0.71291,
+      0.746861,
+      0.747139,
+      0.865049,
+      0.866958,
+      0.878429
+    ],
+    "y": [
+      0.148148,
+      0.148148,
+      0.190476,
+      0.190476,
+      0.35249,
+      0.35249,
+      0.5,
+      0.5,
+      0.672727,
+      0.672727,
+      0.692946,
+      0.692946,
+      0.75,
+      0.75,
+      0.808696,
+      0.808696,
+      1.0,
+      1.0
+    ]
+  },
+  "n_boost_rounds": 103,
+  "features": [
+    "dev_pct",
+    "volatility_5m",
+    "pos24h_percentile",
+    "range_24h_pct",
+    "taker_1h_buy_pct",
+    "taker_5m_last",
+    "taker_15m",
+    "imb_5m",
+    "imb_15m",
+    "kline_15m",
+    "kline_1h",
+    "momentum_burst",
+    "macro_up_1h",
+    "macro_up_4h",
+    "rsi_1h",
+    "rsi_4h",
+    "bb_pos_1h",
+    "bb_pos_4h",
+    "macd_1h_hist",
+    "macd_4h_hist",
+    "vol_ratio_1h",
+    "prev_chg_pct",
+    "prev_consec",
+    "roll_up_6h",
+    "ret_24h",
+    "hist_up_rate",
+    "funding_rate",
+    "hour_sin",
+    "hour_cos",
+    "open_dir",
+    "open_range_pct",
+    "open_vol_ratio"
+  ],
+  "params": {
+    "objective": "binary",
+    "metric": "auc",
+    "verbosity": -1,
+    "num_leaves": 31,
+    "max_depth": 6,
+    "learning_rate": 0.03,
+    "n_estimators": 2000,
+    "min_child_samples": 150,
+    "feature_fraction": 0.8,
+    "bagging_fraction": 0.8,
+    "bagging_freq": 1,
+    "reg_alpha": 0.1,
+    "reg_lambda": 1.0,
+    "seed": 42
+  },
+  "oos_auc": 0.7433958621728773,
+  "top10_importance": [
+    [
+      "open_dir",
+      16071.100644111633
+    ],
+    [
+      "open_range_pct",
+      2206.81864759326
+    ],
+    [
+      "range_24h_pct",
+      884.1869788169861
+    ],
+    [
+      "volatility_5m",
+      795.8457818031311
+    ],
+    [
+      "open_vol_ratio",
+      617.2662687301636
+    ],
+    [
+      "hour_cos",
+      616.3249998688698
+    ],
+    [
+      "prev_chg_pct",
+      595.6433530896902
+    ],
+    [
+      "vol_ratio_1h",
+      544.8438593149185
+    ],
+    [
+      "macd_4h_hist",
+      508.41878950595856
+    ],
+    [
+      "hist_up_rate",
+      397.5045382976532
+    ]
+  ]
+}

@@ -1,0 +1,234 @@
+{
+  "trained_at": "2026-09-04T11:59:34.723015+00:00",
+  "decision_min": 30,
+  "tag": "gs",
+  "model_basis": "random_split_topis",
+  "train_rows": 728,
+  "pm_rows_train": 40,
+  "days": 60,
+  "seed": 42,
+  "params": {
+    "objective": "binary",
+    "metric": "auc",
+    "verbosity": -1,
+    "num_leaves": 16,
+    "max_depth": 5,
+    "learning_rate": 0.05,
+    "n_estimators": 900,
+    "min_child_samples": 40,
+    "feature_fraction": 0.8,
+    "bagging_fraction": 0.8,
+    "bagging_freq": 1,
+    "reg_alpha": 0.3,
+    "reg_lambda": 2.0,
+    "seed": 42
+  },
+  "n_boost_rounds": 51,
+  "calibration": {
+    "x": [
+      0.080925,
+      0.085404,
+      0.127819,
+      0.128513,
+      0.19632,
+      0.20079,
+      0.537649,
+      0.548824,
+      0.665243,
+      0.665251,
+      0.775645,
+      0.775753,
+      0.786157,
+      0.788748,
+      0.812786,
+      0.814936,
+      0.864527,
+      0.865892,
+      0.925058
+    ],
+    "y": [
+      0.0,
+      0.045455,
+      0.045455,
+      0.148148,
+      0.148148,
+      0.414634,
+      0.414634,
+      0.5,
+      0.5,
+      0.6,
+      0.6,
+      0.666667,
+      0.666667,
+      0.75,
+      0.75,
+      0.84,
+      0.84,
+      1.0,
+      1.0
+    ]
+  },
+  "features": [
+    "dev_pct",
+    "volatility_5m",
+    "pos24h_percentile",
+    "range_24h_pct",
+    "taker_1h_buy_pct",
+    "taker_5m_last",
+    "taker_15m",
+    "imb_5m",
+    "imb_15m",
+    "kline_15m",
+    "kline_1h",
+    "momentum_burst",
+    "macro_up_1h",
+    "macro_up_4h",
+    "rsi_1h",
+    "rsi_4h",
+    "bb_pos_1h",
+    "bb_pos_4h",
+    "macd_1h_hist",
+    "macd_4h_hist",
+    "vol_ratio_1h",
+    "prev_chg_pct",
+    "prev_consec",
+    "roll_up_6h",
+    "ret_24h",
+    "hist_up_rate",
+    "funding_rate",
+    "hour_sin",
+    "hour_cos",
+    "open_dir",
+    "open_range_pct",
+    "open_vol_ratio",
+    "pm_up_dec",
+    "pm_delta"
+  ],
+  "validation": {
+    "n": 183,
+    "pm_rows": 50,
+    "overall": {
+      "n": 183,
+      "acc": 0.7705,
+      "n@0.55": 169,
+      "hit@0.55": 0.7929,
+      "n@0.6": 128,
+      "hit@0.6": 0.8594,
+      "n@0.65": 113,
+      "hit@0.65": 0.8938
+    },
+    "compare_v1": {
+      "v_all": {
+        "v1": {
+          "n": 183,
+          "acc": 0.7596,
+          "n@0.55": 182,
+          "hit@0.55": 0.7582,
+          "n@0.6": 167,
+          "hit@0.6": 0.7964,
+          "n@0.65": 148,
+          "hit@0.65": 0.8243
+        },
+        "gs": {
+          "n": 183,
+          "acc": 0.7705,
+          "n@0.55": 169,
+          "hit@0.55": 0.7929,
+          "n@0.6": 128,
+          "hit@0.6": 0.8594,
+          "n@0.65": 113,
+          "hit@0.65": 0.8938
+        }
+      },
+      "v_pm": {
+        "v1": {
+          "n": 10,
+          "acc": 0.8,
+          "n@0.55": 10,
+          "hit@0.55": 0.8,
+          "n@0.6": 10,
+          "hit@0.6": 0.8,
+          "n@0.65": 10,
+          "hit@0.65": 0.8
+        },
+        "gs": {
+          "n": 10,
+          "acc": 0.8,
+          "n@0.55": 10,
+          "hit@0.55": 0.8,
+          "n@0.6": 8,
+          "hit@0.6": 0.75,
+          "n@0.65": 8,
+          "hit@0.65": 0.75
+        }
+      },
+      "n_pm_val": 10,
+      "flip_gs_wins": 2,
+      "flip_v1_wins": 0,
+      "v_pm_strong": {
+        "v1": {
+          "n": 1,
+          "acc": 1.0,
+          "n@0.55": 1,
+          "hit@0.55": 1.0,
+          "n@0.6": 1,
+          "hit@0.6": 1.0,
+          "n@0.65": 1,
+          "hit@0.65": 1.0
+        },
+        "gs": {
+          "n": 1,
+          "acc": 1.0,
+          "n@0.55": 1,
+          "hit@0.55": 1.0,
+          "n@0.6": 1,
+          "hit@0.6": 1.0,
+          "n@0.65": 1,
+          "hit@0.65": 1.0
+        }
+      }
+    }
+  },
+  "top10_importance": [
+    [
+      "dev_pct",
+      2372.218604952097
+    ],
+    [
+      "kline_15m",
+      837.6351957321167
+    ],
+    [
+      "momentum_burst",
+      210.2939365953207
+    ],
+    [
+      "hour_cos",
+      134.6427092552185
+    ],
+    [
+      "open_dir",
+      123.99341821670532
+    ],
+    [
+      "funding_rate",
+      80.95636004209518
+    ],
+    [
+      "hist_up_rate",
+      61.5979725420475
+    ],
+    [
+      "taker_15m",
+      48.25942999124527
+    ],
+    [
+      "bb_pos_4h",
+      46.138799488544464
+    ],
+    [
+      "ret_24h",
+      42.072609543800354
+    ]
+  ]
+}

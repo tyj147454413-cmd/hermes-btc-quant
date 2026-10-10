@@ -1,0 +1,11 @@
+{
+  "n_shadow_universe": 101,
+  "with_labels": false,
+  "min_ev_filter": 0.02,
+  "decision_min_filter": null,
+  "ev_up_mean": 0.1007,
+  "ev_up_pos_ratio": 0.7143,
+  "ev_down_mean": -0.1007,
+  "fair_minus_pm_mean": 0.0608,
+  "p_model_mean": 0.6383
+}

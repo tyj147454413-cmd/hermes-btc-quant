@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hermes v3 全功能版 — 真实引擎数据 · Quant Terminal</title>
+<style>
+  :root{
+    --bg:#05050e; --panel:#0a0a1a; --line:#141432;
+    --cyan:#00e5ff; --green:#16c784; --red:#ff3b5c; --yellow:#f0b90b;
+    --orange:#ff9f43; --text:#c8d0e0; --dim:#555a78;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:'SF Mono','Cascadia Code',Consolas,monospace;overflow-x:hidden}
+  ::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-thumb{background:var(--line)}
+
+  #fx-particles{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5}
+  #fx-crt{position:fixed;inset:0;z-index:9999;pointer-events:none;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,.10) 0 1px,transparent 1px 3px);animation:flick 5s infinite}
+  @keyframes flick{0%,100%{opacity:1}93%{opacity:.86}94%{opacity:.97}}
+  #fx-crt::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 58%,rgba(0,0,5,.42))}
+
+  .wrap{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:10px}
+
+  /* 顶栏 */
+  .topbar{display:flex;align-items:center;gap:12px;padding:8px 12px;border:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+  .brand{color:var(--cyan);font-weight:800;letter-spacing:1px;font-size:14px;text-shadow:0 0 10px rgba(0,229,255,.8)}
+  .brand small{color:var(--dim);font-weight:400}
+  .params{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+  .param{font-size:9px;color:var(--dim);border:1px solid var(--line);padding:2px 7px;white-space:nowrap}
+  .param b{color:var(--cyan);font-weight:400}
+  .clock{color:var(--red);font-size:14px;font-weight:700;text-shadow:0 0 8px rgba(255,59,92,.6)}
+  .px{color:var(--green);font-size:13px;font-weight:700;text-shadow:0 0 8px rgba(22,199,132,.5)}
+
+  .feed{overflow:hidden;border:1px solid var(--line);border-top:none;background:#030309;padding:4px 0;white-space:nowrap}
+  .feed-inner{display:inline-block;animation:marq 30s linear infinite;font-size:10px}
+  .feed-inner b{color:var(--cyan);font-weight:400}
+  .feed-inner .g{color:var(--green)}.feed-inner .r{color:var(--red)}.feed-inner .y{color:var(--yellow)}
+  @keyframes marq{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+  /* ===== 纯 grid 行对齐: 同行面板自动等高 ===== */
+  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:8px;margin-top:8px;align-items:stretch}
+  .c2{grid-column:span 2}.c3{grid-column:span 3}.c4{grid-column:span 4}.c5{grid-column:span 5}.c7{grid-column:span 7}.c12{grid-column:span 12}
+  @media (max-width:1200px){.c2,.c3,.c4,.c5,.c7{grid-column:span 12}}
+  .panel{border:1px solid var(--line);background:rgba(10,10,26,.9);display:flex;flex-direction:column;min-width:0}
+  .pt{font-size:9px;letter-spacing:1px;color:var(--cyan);padding:6px 9px;border-bottom:1px solid var(--line);
+    text-shadow:0 0 8px rgba(0,229,255,.5);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+  .pt::before{content:'● ';font-size:7px}
+  .pt .tag{color:var(--bg);background:var(--cyan);padding:0 5px;border-radius:2px;font-weight:700}
+  .pt .warn{color:var(--yellow);background:none;border:1px solid var(--yellow)}
+  .pt .btns{display:flex;gap:4px}
+  .pb{padding:9px;flex:1;min-height:0}
+
+  /* PnL */
+  .pnl-big{font-size:40px;font-weight:800;color:var(--red);text-shadow:0 0 18px rgba(255,59,92,.6);font-variant-numeric:tabular-nums;letter-spacing:-1px}
+  .pnl-sub{display:flex;justify-content:space-between;font-size:9px;color:var(--dim);margin-top:6px;flex-wrap:wrap;gap:4px}
+  .pnl-sub b{color:var(--text);font-weight:400}
+  .kpi{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+  .kpi>div{border:1px solid var(--line);padding:5px 7px;font-size:9px;color:var(--dim)}
+  .kpi b{display:block;font-size:14px;color:var(--cyan);text-shadow:0 0 8px rgba(0,229,255,.55);margin-top:2px;font-weight:700}
+  .blink{animation:fup .5s}
+  @keyframes fup{0%{color:#fff}}
+
+  /* 控制 */
+  .ctl-row{display:flex;gap:6px;align-items:center;margin-top:6px;font-size:10px}
+  .ctl-row label{color:var(--dim);font-size:9px;min-width:52px}
+  .btn{border:1px solid var(--line);background:#060614;color:var(--cyan);padding:5px 10px;font-size:9px;cursor:pointer;
+    font-family:inherit;letter-spacing:1px;transition:all .2s}
+  .btn:hover{border-color:var(--cyan);box-shadow:0 0 10px rgba(0,229,255,.35)}
+  .btn.warn{color:var(--yellow);border-color:rgba(240,185,11,.4)}
+  .btn.danger{color:var(--red);border-color:rgba(255,59,92,.4)}
+  .btn.danger:hover{box-shadow:0 0 10px rgba(255,59,92,.4)}
+  .bet-input{width:74px;border:1px solid var(--line);background:#060614;color:var(--green);padding:5px 7px;
+    font-family:inherit;font-size:11px;font-weight:700}
+  .mode-chip{border:1px solid var(--green);color:var(--green);padding:2px 8px;font-size:9px;letter-spacing:1px;
+    text-shadow:0 0 6px rgba(22,199,132,.5);animation:mpulse 2.4s infinite}
+  @keyframes mpulse{50%{box-shadow:0 0 10px rgba(22,199,132,.4)}}
+
+  /* 12 因子 */
+  .vs-head{display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin:2px 0 5px}
+  .vs-bar{display:flex;height:15px;border:1px solid var(--line);background:#060614;overflow:hidden}
+  .vs-bar .up{background:linear-gradient(90deg,rgba(22,199,132,.25),var(--green));box-shadow:0 0 12px rgba(22,199,132,.5);transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
+  .vs-bar .dn{flex:1;background:linear-gradient(90deg,var(--red),rgba(255,59,92,.25))}
+  .meta{display:flex;gap:6px;flex-wrap:wrap;margin:7px 0 2px}
+  .meta span{font-size:8px;color:var(--dim);border:1px solid var(--line);padding:1px 5px}
+  .meta span b{color:var(--cyan);font-weight:400}
+  .frow{display:grid;grid-template-columns:118px 1fr 34px;gap:7px;align-items:center;margin-top:6px;font-size:9px;
+    opacity:0;transform:translateX(-8px);transition:all .4s ease-out}
+  .frow.show{opacity:1;transform:none}
+  .frow .fn{color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .frow .fn i{font-style:normal;color:var(--text)}
+  .fbar2{position:relative;height:9px;background:#060614;border:1px solid var(--line)}
+  .fbar2 em{position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--dim);opacity:.6}
+  .fbar2 .pos,.fbar2 .neg{position:absolute;top:0;bottom:0;width:0;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+  .fbar2 .pos{left:50%;background:linear-gradient(90deg,rgba(22,199,132,.3),var(--green));box-shadow:0 0 7px rgba(22,199,132,.5)}
+  .fbar2 .neg{right:50%;background:linear-gradient(270deg,rgba(255,59,92,.3),var(--red));box-shadow:0 0 7px rgba(255,59,92,.45)}
+  .frow .fv{text-align:right;font-variant-numeric:tabular-nums}
+  .fv.pos{color:var(--green);text-shadow:0 0 6px rgba(22,199,132,.5)}
+  .fv.neg{color:var(--red);text-shadow:0 0 6px rgba(255,59,92,.5)}
+  .fv.zero{color:var(--dim)}
+  .verdict{margin-top:9px;padding:6px 8px;border:1px dashed var(--line);font-size:10px;color:var(--dim);line-height:1.6}
+  .verdict b{color:var(--yellow);font-weight:400}
+  .verdict .g{color:var(--green)}
+
+  .risk{font-size:9px;color:var(--yellow);line-height:1.7;border-left:2px solid var(--yellow);padding:2px 0 2px 8px;margin-top:5px;
+    text-shadow:0 0 6px rgba(240,185,11,.3);animation:rwarn 2.6s infinite}
+  @keyframes rwarn{50%{opacity:.65}}
+
+  /* 信号卡 */
+  .sig-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .sig-cell{border:1px solid var(--line);padding:6px 8px;font-size:9px;color:var(--dim)}
+  .sig-cell b{display:block;font-size:15px;color:var(--cyan);text-shadow:0 0 8px rgba(0,229,255,.5);margin-top:2px;font-weight:700}
+  .sig-cell b.g{color:var(--green);text-shadow:0 0 8px rgba(22,199,132,.5)}
+  .sig-cell b.y{color:var(--yellow);text-shadow:0 0 8px rgba(240,185,11,.5)}
+
+  /* 市场脉搏/情景 */
+  .pulse-row{display:flex;justify-content:space-between;font-size:10px;padding:5px 2px;border-bottom:1px dashed rgba(20,20,50,.8);gap:8px}
+  .pulse-row:last-child{border:none}
+  .pulse-row .k{color:var(--dim)}
+  .pulse-row .k small{opacity:.6}
+  .pulse-row .v{color:var(--cyan);text-shadow:0 0 6px rgba(0,229,255,.4);text-align:right}
+  .pulse-row .v.g{color:var(--green)}.pulse-row .v.r{color:var(--red)}.pulse-row .v.y{color:var(--yellow)}
+
+  /* 球/图/频谱 */
+  #sphere-box{position:relative;height:330px;background:radial-gradient(circle at 50% 45%,rgba(0,229,255,.05),transparent 60%)}
+  #sphere{width:100%;height:100%;display:block}
+  .cap{position:absolute;bottom:5px;left:0;right:0;text-align:center;font-size:8px;color:var(--dim);letter-spacing:1px}
+  #chart{width:100%;height:170px;display:block}
+  #spec{width:100%;height:54px;display:block}
+
+  /* 钱包/持仓 */
+  .wal{display:flex;justify-content:space-between;font-size:10px;padding:5px 2px;border-bottom:1px dashed rgba(20,20,50,.8)}
+  .wal:last-child{border:none}
+  .wal .k{color:var(--dim)}.wal .v{color:var(--green);text-shadow:0 0 6px rgba(22,199,132,.4)}
+  .wal .v.c{color:var(--cyan)}
+
+  /* 热力 */
+  .heat{display:grid;grid-template-columns:repeat(9,1fr);gap:3px}
+  .hcell{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:8px;border-radius:2px;
+    color:#02020a;font-weight:700;animation:pop .4s ease-out backwards}
+  .hcell small{font-size:6.5px;opacity:.75;font-weight:400}
+  @keyframes pop{0%{transform:scale(.3);opacity:0}100%{}}
+  .hw{background:var(--green);box-shadow:0 0 6px rgba(22,199,132,.45)}
+  .hl{background:var(--red);box-shadow:0 0 6px rgba(255,59,92,.4)}
+  .hleg{display:flex;gap:10px;font-size:8px;color:var(--dim);margin-top:7px;flex-wrap:wrap}
+  .hleg i{display:inline-block;width:7px;height:7px;border-radius:1px;margin-right:3px}
+
+  /* 决策链 */
+  .chain{display:flex;align-items:center;padding:12px 6px 6px}
+  .node{text-align:center;position:relative;z-index:1;flex:1}
+  .nc{width:42px;height:42px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;
+    font-size:8px;color:var(--dim);background:#060614;margin:0 auto 4px;transition:all .5s}
+  .node.on .nc{border-color:var(--green);color:var(--green);box-shadow:0 0 14px rgba(22,199,132,.55)}
+  .node.cur .nc{border-color:var(--yellow);color:var(--yellow);box-shadow:0 0 18px rgba(240,185,11,.7);animation:npulse 1.1s infinite}
+  @keyframes npulse{50%{transform:scale(1.1)}}
+  .nl{width:12px;height:2px;background:var(--line);position:relative;overflow:hidden;margin-bottom:20px;flex-shrink:0}
+  .nl i{position:absolute;inset:0;background:var(--green);transform:scaleX(0);transform-origin:left;transition:transform .7s}
+  .nl.on i{transform:scaleX(1)}
+
+  /* 历史表 */
+  .tbl{width:100%;border-collapse:collapse;font-size:9px}
+  .tbl th{color:var(--dim);text-align:left;padding:4px 6px;border-bottom:1px solid var(--line);font-weight:400;letter-spacing:1px;position:sticky;top:0;background:var(--panel)}
+  .tbl td{padding:4px 6px;border-bottom:1px solid rgba(20,20,50,.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
+  .tbl .win{color:var(--green)}.tbl .loss{color:var(--red)}.tbl .pend{color:var(--yellow)}
+  .tbl-wrap{overflow-y:auto;max-height:262px}
+
+  /* 日志 */
+  .log{font-size:9px;line-height:1.75;overflow-y:auto;max-height:262px}
+  .log .lw{color:var(--yellow)}.log .le{color:var(--red)}.log .li{color:var(--dim)}
+  .log .lt{color:#3a3f60;margin-right:6px}
+
+  .foot{margin-top:8px;border:1px solid var(--line);background:var(--panel);padding:5px 12px;font-size:9px;color:var(--dim);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px}
+  .foot b{color:var(--cyan);font-weight:400}
+  @media (prefers-reduced-motion:reduce){*,#fx-crt{animation:none!important}#fx-particles{display:none}}
+</style>
+</head>
+<body>
+<canvas id="fx-particles"></canvas>
+<div id="fx-crt"></div>
+
+<div class="wrap">
+  <!-- 顶栏: 品牌 + 参数 + 控制 -->
+  <div class="topbar">
+    <div class="brand">◉ HERMES <small>// POLYMARKET BTC 1H</small></div>
+    <div class="params">
+      <span class="param">MODE <b id="p-mode">PAPER</b></span>
+      <span class="param">ENGINE <b>round52.1</b></span>
+      <span class="param">ANCHOR <b>$108,900.0</b></span>
+      <span class="param">P(RAW) <b>0.676</b></span>
+      <span class="param">EV <b>+7.0</b></span>
+      <span class="param">TIER <b>S</b></span>
+    </div>
+    <span class="mode-chip" id="mode-chip">📝 PAPER</span>
+    <button class="btn warn" onclick="alert('样品演示: 切 live 需确认弹窗')">🔥 LIVE</button>
+    <button class="btn danger" onclick="alert('样品演示: 重启确认弹窗')">⟳ RESTART</button>
+    <div class="px" id="btc">$109,247.5</div>
+    <div class="clock" id="clock">--:--:-- UTC</div>
+  </div>
+
+  <div class="feed"><div class="feed-inner" id="feed"></div></div>
+
+  <!-- Row1: PNL+控制 | 12因子 | 球 -->
+  <div class="grid">
+    <div class="panel c3">
+      <div class="pt">PAPER PNL — 成交口径 <span class="tag">LIVE</span></div>
+      <div class="pb">
+        <div class="pnl-big" id="pnl">−$154.21</div>
+        <div class="pnl-sub"><span>FILLS <b>237</b></span><span>WIN RATE <b>64.1%</b></span><span>AVG <b>−$0.65</b></span></div>
+        <div class="kpi">
+          <div>WINDOWS<b>640</b></div>
+          <div>TRADES 24H<b>12</b></div>
+          <div>CHASE FILL<b>38.2%</b></div>
+          <div>SHADOW<b>10 PEND</b></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel c5">
+      <div class="pt">ENGINE SCORE — 12 项机算因子 <span class="tag" id="fside">UP</span></div>
+      <div class="pb">
+        <div class="vs-head">
+          <span style="color:var(--green)">🔼 UP <b id="sup">0</b></span>
+          <span style="font-size:9px;color:var(--dim)">conf <b style="color:var(--yellow)">0.4</b> · 净分 <b style="color:var(--cyan)">+1</b></span>
+          <span style="color:var(--red)">DOWN <b id="sdn">0</b> 🔽</span>
+        </div>
+        <div class="vs-bar"><div class="up" id="bup" style="width:0%"></div><div class="dn"></div></div>
+        <div class="meta">
+          <span>S0 <b>+1</b></span><span>PM行 <b>0</b></span><span>AI对照 <b>一致 ✓</b></span>
+          <span>概率 <b>0.676 (校准0.67)</b></span><span>EV <b>7.0/百$</b></span><span>首挂 <b>taker@ask ≤0.65</b></span>
+        </div>
+        <div id="frows"></div>
+        <div class="verdict" id="fverdict">⟶ 引擎判定中 ...</div>
+      </div>
+    </div>
+
+    <div class="panel c4">
+      <div class="pt">NEURAL SHELL — 历史窗口空间 <span class="tag">32W</span></div>
+      <div id="sphere-box"><canvas id="sphere"></canvas>
+        <div class="cap">NODE = 1H WINDOW · GREEN WIN / RED LOSS / YELLOW PENDING</div></div>
+    </div>
+
+    <!-- Row2: 钱包持仓 | 市场脉搏+情景 | 信号卡+决策链 -->
+    <div class="panel c3">
+      <div class="pt">WALLET — 钱包 · 持仓 <span class="tag" id="wal-mode">PAPER</span></div>
+      <div class="pb">
+        <div class="wal"><span class="k">USDC 余额</span><span class="v">$996.80</span></div>
+        <div class="wal"><span class="k">在途挂单</span><span class="v c">0</span></div>
+        <div class="wal"><span class="k">当前持仓 9am-ET</span><span class="v c">UP $4.00 @0.65</span></div>
+        <div class="wal"><span class="k">持仓市值</span><span class="v c">$2.46</span></div>
+        <div class="wal"><span class="k">影子账累计</span><span class="v">+$0.00 (10观察)</span></div>
+        <div class="ctl-row"><label>BET $</label>
+          <button class="btn" onclick="betStep(-0.5)">−</button>
+          <input class="bet-input" id="bet" value="4.00">
+          <button class="btn" onclick="betStep(0.5)">+</button>
+          <button class="btn" onclick="alert('样品演示: SET BET')">SET</button></div>
+        <div class="ctl-row"><label>MODE</label>
+          <button class="btn warn" style="flex:1" onclick="alert('样品演示: PAPER↔LIVE 需确认')">SWITCH PAPER/LIVE</button></div>
+      </div>
+    </div>
+
+    <div class="panel c5">
+      <div class="pt">MARKET READ — 市场脉搏 · 情景 <span class="tag" id="mp-slug">9AM-ET</span></div>
+      <div class="pb">
+        <div id="pulse"></div>
+      </div>
+    </div>
+
+    <div class="panel c4">
+      <div class="pt">SIGNAL — 当前信号 · 决策流</div>
+      <div class="pb">
+        <div class="sig-grid">
+          <div class="sig-cell">方向 / 概率<b class="g" id="sg-side">UP · 0.67</b></div>
+          <div class="sig-cell">首挂上限<b class="y">≤ 0.65</b></div>
+          <div class="sig-cell">EV (校准)<b class="g">+7.0/百$</b></div>
+          <div class="sig-cell">下单金额<b>$4.00 · scale 0.5</b></div>
+        </div>
+        <div class="chain" id="chain">
+          <div class="node"><div class="nc">SIGNAL</div>信号</div>
+          <div class="nl"><i></i></div>
+          <div class="node"><div class="nc">RISK</div>风控</div>
+          <div class="nl"><i></i></div>
+          <div class="node"><div class="nc">ORDER</div>下单</div>
+          <div class="nl"><i></i></div>
+          <div class="node"><div class="nc">CHASE</div>追价</div>
+          <div class="nl"><i></i></div>
+          <div class="node"><div class="nc">FILL</div>成交</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row3: 风险 | BTC图表 | 热力 -->
+    <div class="panel c3">
+      <div class="pt">ENGINE RISKS — 风控提示 <span class="tag warn">3</span></div>
+      <div class="pb" id="risks"></div>
+    </div>
+
+    <div class="panel c5">
+      <div class="pt">BTC/USD — 1H 走势 · 锚定线 <span class="tag">SIM</span></div>
+      <div class="pb" style="padding:6px">
+        <canvas id="chart"></canvas>
+        <div style="font-size:8px;color:var(--dim);letter-spacing:1px;margin:4px 0 2px">● MATCH ENGINE — 成交流</div>
+        <canvas id="spec"></canvas>
+      </div>
+    </div>
+
+    <div class="panel c4">
+      <div class="pt">RESOLUTION GRID — 近 36 期结算</div>
+      <div class="pb">
+        <div class="heat" id="heat"></div>
+        <div class="hleg">
+          <span><i class="hw"></i>WIN</span><span><i class="hl"></i>LOSS</span>
+          <span>¢=买价</span><span style="margin-left:auto;opacity:.7">淡格=未成交(方向对)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row4: 历史表 | 日志 -->
+    <div class="panel c7">
+      <div class="pt">TRADES — 历史交易 <span class="tag">640 行 · 示例12</span></div>
+      <div class="pb" style="padding:0"><div class="tbl-wrap"><table class="tbl" id="tbl"></table></div></div>
+    </div>
+
+    <div class="panel c5">
+      <div class="pt">LOGS — 引擎日志
+        <span class="btns"><button class="btn" onclick="logFilter('all')">全部</button>
+        <button class="btn warn" onclick="logFilter('we')">⚠W/E</button></span></div>
+      <div class="pb" style="padding:6px 9px"><div class="log" id="log"></div></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span><b>HERMES QUANT</b> · v3 全功能版 · 真实快照 13:36 UTC · 9AM-ET</span>
+    <span>策略 <b>round52.1</b> · 概率天花板 <b>0.67</b> · 落地版数据源 /api/signal ·/analysis ·/history ·/status</span>
+  </div>
+</div>
+
+<script>
+/* ============ 真实数据快照 (hermes_last_signal.json 13:36:02Z · results.jsonl) ============ */
+const REAL={
+  side:"UP",up:0.676,down:0.324,confidence:0.4,prob:0.67,prob_raw:0.676,ev:7.0,max_price:0.65,amount:4.0,
+  factors:[["price_position","价格位置",1],["taker_bs","Taker买卖",1],["recent_dir_5m","5m方向",-1],
+    ["recent_dir_15m","15m方向",1],["kline_15m","15m K线",0],["kline_1h","1h K线",-1],["momentum_burst","动量爆发",0],
+    ["pm_imbalance","PM挂单失衡",1],["pm_momentum","PM价动量",-2],["pm_consensus","PM共识",1],
+    ["fake_breakout","假突破",0],["divergence","背离",0]],
+  risks:["⚠ 逆非深度大趋势，缩仓减亏","⚠ 顺共识区，庄家收割风险","⚠ 反手预警观察级（3/4 维）→ 未达 F1 翻转条件，维持原判"],
+  pulse:[
+    ["1H Taker B/S 买占比","48.7%","y","仅参考不计分"],
+    ["15m MACD hist","+67.5","g","仅参考不计分"],
+    ["PM 挂单失衡 imb","+0.371","g","触发 → +1"],
+    ["PM 价动量 Δ","-0.050","r","触发 → ±2 · ⚠动量掉头"],
+    ["pm_up_price (gamma)","$0.615","","翻向基准回填"],
+    ["波动率","0.411%","y",">0.3% → 贴线禁用"],
+    ["情景推演","贴线震荡 · 弱信号","y","多空分歧 48.7% 买盘"],
+    ["共振状态","1h↗ 15m↗ 4h→","","两多一平"]],
+  grid:[["W","UP",65,1],["W","UP",46,1],["W","UP",65,0],["W","UP",65,0],["W","DOWN",60,1],["W","DOWN",66,1],
+    ["W","UP",65,1],["W","DOWN",65,1],["W","UP",65,0],["W","DOWN",65,0],["W","DOWN",65,0],["W","DOWN",65,0],
+    ["W","UP",80,1],["W","UP",65,0],["W","UP",65,0],["W","UP",60,0],["L","UP",47,1],["W","UP",60,0],
+    ["W","DOWN",65,1],["W","DOWN",65,0],["L","UP",71,1],["W","DOWN",65,0],["W","UP",65,0],["W","UP",60,0],
+    ["W","DOWN",60,0],["W","DOWN",60,1],["W","DOWN",60,0],["W","UP",60,0],["W","DOWN",60,1],["W","DOWN",57,1],
+    ["W","DOWN",60,0],["W","DOWN",60,0],["W","DOWN",99,1],["W","UP",60,1],["L","UP",65,1],["W","UP",65,1]],
+  trades:[ /* done+results 真实合并口径示例 */
+    ["9AM-ET","UP","$4.00","FILLED","WIN","+$2.15"],["8AM-ET","UP","$4.00","FILLED","WIN","+$2.69"],
+    ["7AM-ET","UP","$4.00","—","WIN","$0.00 未成交"],["6AM-ET","DOWN","$4.00","FILLED","WIN","+$2.67"],
+    ["5AM-ET","DOWN","$4.00","FILLED","WIN","+$3.01"],["4AM-ET","UP","$4.00","FILLED","LOSS","-$4.00"],
+    ["3AM-ET","DOWN","$4.00","FILLED","WIN","+$2.67"],["2AM-ET","UP","$4.00","—","WIN","$0.00 未成交"],
+    ["1AM-ET","UP","$4.00","FILLED","LOSS","-$4.00"],["12AM-ET","DOWN","$4.00","FILLED","WIN","+$2.67"],
+    ["11PM-ET","UP","$4.00","FILLED","WIN","+$1.25"],["10PM-ET","UP","$4.00","—","WIN","$0.00 未成交"]],
+  logs:[["14:02:09","I","[REVIEW] 8am 结算 WIN +$2.69 · 胜率 64.1%"],
+    ["13:36:03","I","[ORDER] 首挂 taker 吃价 ask=0.645 → FILLED $4.00 (PAPER_1788356163)"],
+    ["13:36:02","W","[SIGNAL] PM 动量掉头: 绝对价看多但动量向下 → 弱信号贴线观察"],
+    ["13:36:02","I","[CHECK] 概率天花板校准 0.68→0.67 · EV 重算=7.0/百$"],
+    ["13:30:41","I","[CHASE] 追价第2档 0.70 挂单 age=4m · 无封顶"],
+    ["13:21:07","I","[GUARD] 交易所探测正常 · 退出静默期"],
+    ["13:11:02","E","[EXCHANGE] 503 trading is disabled → 静默 10m 自动探测"],
+    ["12:53:10","I","[BOOT] hermes_1h_bot 启动 · mode=PAPER · 恢复1笔挂单追踪"],
+    ["12:41:55","W","[RISK] 余额查询超时 · transient 重试 1/3"],
+    ["12:35:22","I","[SIGNAL] 12am-ET 分析完成 p=0.676 方向=UP tier=S"],
+    ["12:30:18","I","[PAPER] 模拟成交 +$2.20 paper_instant=true"],
+    ["12:02:09","I","[REVIEW] 7am 结算 WIN +$2.15 · 概率校准漂移 0.3%"]],
+};
+
+/* ============ 12 因子动态 ============ */
+(function(){
+  const box=document.getElementById('frows');
+  setTimeout(()=>{
+    document.getElementById('bup').style.width=(REAL.up*100)+'%';
+    rollNum(document.getElementById('sup'),0,Math.round(REAL.up*100),900,v=>v+'%');
+    rollNum(document.getElementById('sdn'),0,Math.round(REAL.down*100),900,v=>v+'%');
+  },250);
+  REAL.factors.forEach(([key,label,val],i)=>{
+    const r=document.createElement('div');r.className='frow';r.title=key+'  值='+val;
+    const pw=Math.abs(val)/2*50;
+    r.innerHTML=`<span class="fn">${label} <i>${key}</i></span>`+
+      `<span class="fbar2"><em></em>${val>0?'<i class="pos"></i>':val<0?'<i class="neg"></i>':''}</span>`+
+      `<span class="fv ${val>0?'pos':val<0?'neg':'zero'}">${val>0?'+':''}${val.toFixed(0)}</span>`;
+    box.appendChild(r);
+    setTimeout(()=>{r.classList.add('show');
+      const bar=r.querySelector(val>0?'.pos':'.neg');
+      if(bar)setTimeout(()=>bar.style.width=pw+'%',60);
+    },450+i*200);
+  });
+  setTimeout(()=>{
+    document.getElementById('fverdict').innerHTML=
+      `⟶ 引擎判定: <b>${REAL.side} · p=${REAL.prob_raw}</b> · conf ${REAL.confidence} (低) · tier S · 引擎AI一致✓<br>`+
+      `⟶ EV <span class="g">+${REAL.ev}/百$</span> · 下单 $${REAL.amount} · 首挂 taker@ask 封顶 ${REAL.max_price} · PM动量掉头→弱信号贴线观察`;
+  },450+REAL.factors.length*200+400);
+})();
+function rollNum(el,from,to,ms,fmt){
+  const t0=performance.now();
+  (function f(t){const p=Math.min(1,(t-t0)/ms),e=1-Math.pow(1-p,3);
+    el.textContent=fmt(Math.round(from+(to-from)*e));
+    if(p<1)requestAnimationFrame(f)})(t0);
+}
+
+/* ============ 风险/脉搏/热力/持仓 ============ */
+REAL.risks.forEach((r,i)=>{const d=document.createElement('div');d.className='risk';
+  d.textContent=r;d.style.animationDelay=(i*.4)+'s';document.getElementById('risks').appendChild(d)});
+REAL.pulse.forEach(([k,v,cls,note])=>{const d=document.createElement('div');d.className='pulse-row';
+  d.innerHTML=`<span class="k">${k}${note?` <small>· ${note}</small>`:''}</span><span class="v ${cls}">${v}</span>`;
+  document.getElementById('pulse').appendChild(d)});
+REAL.grid.forEach(([r,side,c,f],i)=>{const d=document.createElement('div');
+  d.className='hcell '+(r==='W'?'hw':'hl');d.style.animationDelay=(i*40)+'ms';
+  if(!f)d.style.opacity=.38;
+  d.innerHTML=`${c}¢<small>${side}</small>`;d.title=`${side} ${r} · 买价 ${c}¢ · ${f?'已成交':'未成交'}`;
+  document.getElementById('heat').appendChild(d)});
+
+/* ============ 历史表 ============ */
+(function(){
+  const t=document.getElementById('tbl');
+  t.innerHTML='<thead><tr><th>窗口</th><th>方向</th><th>金额</th><th>成交</th><th>结果</th><th>PnL</th></tr></thead><tbody>'+
+    REAL.trades.map(([w,s,a,st,r,p])=>{
+      const cls=r==='WIN'?'win':r==='LOSS'?'loss':'pend';
+      return `<tr><td>${w}</td><td>${s}</td><td>${a}</td><td>${st}</td><td class="${cls}">${r}</td><td class="${cls}">${p}</td></tr>`;
+    }).join('')+'</tbody>';
+})();
+
+/* ============ 日志 + W/E 过滤 ============ */
+(function(){
+  const box=document.getElementById('log');
+  box.innerHTML=REAL.logs.map(([t,l,m])=>
+    `<div class="l-${l}" data-l="${l}"><span class="lt">${t}</span>[${l}] ${m}</div>`).join('');
+  window.logFilter=m=>{
+    box.querySelectorAll('div').forEach(d=>{
+      d.style.display=(m==='all'||d.dataset.l!=='I')?'':'none'});
+  };
+})();
+
+/* ============ 决策链 ============ */
+(function(){
+  const nodes=[...document.querySelectorAll('#chain .node')],links=[...document.querySelectorAll('#chain .nl')];
+  let step=-1;
+  setInterval(()=>{step=(step+1)%(nodes.length+1);
+    nodes.forEach((n,i)=>{n.classList.toggle('on',i<step);n.classList.toggle('cur',i===step)});
+    links.forEach((l,i)=>l.classList.toggle('on',i<step));
+  },1400);
+})();
+
+/* ============ 控制 ============ */
+window.betStep=d=>{const el=document.getElementById('bet');
+  el.value=(Math.max(1,Math.min(50,parseFloat(el.value||4)+d))).toFixed(2)};
+
+/* ============ 时钟/BTC/PnL ============ */
+setInterval(()=>{document.getElementById('clock').textContent=new Date().toLocaleTimeString('en-US',{hour12:false})+' UTC'},1000);
+(function(){let px=109247.5;const el=document.getElementById('btc');
+setInterval(()=>{px+=(Math.random()-.5)*36;el.textContent='$'+px.toLocaleString('en-US',{maximumFractionDigits:1});
+el.classList.remove('blink');void el.offsetWidth;el.classList.add('blink')},2000)})();
+(function(){let v=-154.21;const el=document.getElementById('pnl');
+setInterval(()=>{v+=(Math.random()-.5)*1.1;
+el.textContent=(v>=0?'+$':'−$')+Math.abs(v).toFixed(2);
+el.style.color=v>=0?'var(--green)':'var(--red)';
+el.style.textShadow=v>=0?'0 0 18px rgba(22,199,132,.6)':'0 0 18px rgba(255,59,92,.6)';
+el.classList.remove('blink');void el.offsetWidth;el.classList.add('blink')},2600)})();
+
+/* ============ LIVE FEED ============ */
+(function(){
+  const items=['<b>[SIGNAL]</b> 9am-ET 分析完成 p=0.676 方向=<span class="g">UP</span> tier=S 引擎AI一致',
+    '<b>[CHECK]</b> 概率天花板校准 0.68→0.67 · EV=7.0/百$',
+    '<b>[ORDER]</b> 首挂 taker 吃价 ask=0.645 → <span class="g">FILLED $4.00</span>',
+    '<b>[PM]</b> 动量掉头: 绝对价看多但动量向下 → 弱信号贴线观察',
+    '<b>[CHASE]</b> 追价第2档 0.70 挂单 age=4m · 无封顶',
+    '<b>[GUARD]</b> 交易所 <span class="r">503 disabled</span> → 静默 10m 自动探测',
+    '<b>[PAPER]</b> 模拟成交 <span class="g">+$2.15</span> paper_instant=true',
+    '<b>[RISK]</b> 反手预警观察级 3/4 维 → 未达 F1 翻转不干预',
+    '<b>[REVIEW]</b> 8am 结算 <span class="g">WIN +$2.69</span> · 胜率 64.1%'];
+  const half=items.map(s=>`<span style="margin-right:34px">${s}</span>`).join('');
+  document.getElementById('feed').innerHTML=half+half;
+})();
+
+/* ============ BTC 图表 (锚定虚线) ============ */
+(function(){
+  const cv=document.getElementById('chart'),ctx=cv.getContext('2d');
+  const ANCHOR=108900;let data=[];
+  for(let i=0;i<48;i++)data.push(ANCHOR*(1+(Math.random()-.45)*.006));
+  function draw(){
+    const b=cv.parentElement.getBoundingClientRect();
+    const W=cv.width=b.width*devicePixelRatio,H=cv.height=170*devicePixelRatio;
+    ctx.clearRect(0,0,W,H);
+    const mn=Math.min(...data,ANCHOR)*.998,mx=Math.max(...data,ANCHOR)*1.002;
+    const X=i=>i/(data.length-1)*(W-20)+10,Y=v=>H-14-(v-mn)/(mx-mn)*(H-28);
+    // 网格
+    ctx.strokeStyle='rgba(20,20,50,.9)';ctx.lineWidth=1;
+    for(let g=1;g<4;g++){ctx.beginPath();ctx.moveTo(10,H*g/4);ctx.lineTo(W-10,H*g/4);ctx.stroke()}
+    // 锚定虚线
+    ctx.setLineDash([5,4]);ctx.beginPath();ctx.moveTo(10,Y(ANCHOR));ctx.lineTo(W-10,Y(ANCHOR));
+    ctx.strokeStyle='rgba(240,185,11,.7)';ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='rgba(240,185,11,.9)';ctx.font=`${9*devicePixelRatio}px monospace`;
+    ctx.fillText('ANCHOR $108,900',14,Y(ANCHOR)-4*devicePixelRatio);
+    // 价格线(发光)
+    ctx.beginPath();data.forEach((v,i)=>i?ctx.lineTo(X(i),Y(v)):ctx.moveTo(X(i),Y(v)));
+    ctx.strokeStyle='rgba(22,199,132,.9)';ctx.lineWidth=1.6*devicePixelRatio;
+    ctx.shadowColor='rgba(22,199,132,.8)';ctx.shadowBlur=8;ctx.stroke();ctx.shadowBlur=0;
+    // 末端点
+    const lx=X(data.length-1),ly=Y(data[data.length-1]);
+    ctx.beginPath();ctx.arc(lx,ly,3.5*devicePixelRatio,0,7);
+    ctx.fillStyle='#16c784';ctx.shadowColor='#16c784';ctx.shadowBlur=12;ctx.fill();ctx.shadowBlur=0;
+  }
+  draw();
+  setInterval(()=>{data.push(data[data.length-1]*(1+(Math.random()-.5)*.0015));data.shift();draw()},2000);
+  addEventListener('resize',draw);
+})();
+
+/* ============ 点阵球 ============ */
+(function(){
+  const cv=document.getElementById('sphere'),ctx=cv.getContext('2d');
+  let W,H,raf;const N=32,nodes=[];
+  for(let i=0;i<N;i++){const y=1-(i/(N-1))*2,r=Math.sqrt(Math.max(0,1-y*y)),th=i*2.39996;
+    nodes.push({x:Math.cos(th)*r,y,z:Math.sin(th)*r,hue:Math.random()<.6?'g':(Math.random()<.5?'r':'y'),glow:Math.random()})}
+  function size(){const b=cv.parentElement.getBoundingClientRect();
+    W=cv.width=b.width*devicePixelRatio;H=cv.height=b.height*devicePixelRatio}
+  function frame(t){
+    ctx.clearRect(0,0,W,H);
+    const cx=W/2,cy=H/2,R=Math.min(W,H)*.36,rot=t*.00028;
+    const proj=nodes.map(n=>{
+      const x=n.x*Math.cos(rot)-n.z*Math.sin(rot),z=n.x*Math.sin(rot)+n.z*Math.cos(rot);
+      const s=1/(2.2-z*.9);
+      return{sx:cx+x*R*s*2.2,sy:cy+n.y*R*s*2.2,s,z,n};
+    }).sort((a,b)=>a.z-b.z);
+    for(let i=0;i<proj.length;i++)for(let j=i+1;j<proj.length;j++){
+      const a=proj[i],b=proj[j],d=Math.hypot(a.sx-b.sx,a.sy-b.sy);
+      if(d<R*.75){ctx.beginPath();ctx.moveTo(a.sx,a.sy);ctx.lineTo(b.sx,b.sy);
+        ctx.strokeStyle=`rgba(0,229,255,${(1-d/(R*.75))*.14})`;ctx.lineWidth=devicePixelRatio*.7;ctx.stroke()}
+    }
+    for(const p of proj){
+      const col=p.n.hue==='g'?'22,199,132':p.n.hue==='r'?'255,59,92':'240,185,11';
+      const rr=(5+p.n.glow*4)*p.s*devicePixelRatio;
+      ctx.beginPath();ctx.arc(p.sx,p.sy,rr*2.1,0,7);ctx.fillStyle=`rgba(${col},.08)`;ctx.fill();
+      ctx.beginPath();ctx.arc(p.sx,p.sy,rr,0,7);ctx.fillStyle=`rgba(${col},${.25+.5*p.s})`;
+      ctx.shadowColor=`rgba(${col},.9)`;ctx.shadowBlur=10*p.s*devicePixelRatio;ctx.fill();
+      ctx.beginPath();ctx.arc(p.sx,p.sy,rr*.45,0,7);ctx.fillStyle=`rgba(${col},.95)`;ctx.fill();ctx.shadowBlur=0;
+    }
+    raf=requestAnimationFrame(frame);
+  }
+  size();frame();
+  addEventListener('resize',()=>{cancelAnimationFrame(raf);size();frame()});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)cancelAnimationFrame(raf);else frame()});
+})();
+
+/* ============ 频谱 ============ */
+(function(){
+  const cv=document.getElementById('spec'),ctx=cv.getContext('2d');
+  const bars=72;let t=0;
+  (function f(){
+    const b=cv.parentElement.getBoundingClientRect();
+    if(cv.width!==Math.round(b.width*devicePixelRatio)){cv.width=b.width*devicePixelRatio;cv.height=54*devicePixelRatio}
+    ctx.clearRect(0,0,cv.width,cv.height);
+    const bw=cv.width/bars;
+    for(let i=0;i<bars;i++){
+      const v=Math.abs(Math.sin(i*.23+t*.05)+Math.sin(i*.07-t*.02))*.5+Math.random()*.25;
+      const h=v*cv.height*.85,col=v>.66?'22,199,132':v>.4?'240,185,11':'255,59,92';
+      ctx.fillStyle=`rgba(${col},.75)`;ctx.fillRect(i*bw+1,cv.height-h,bw-2,h);
+    }
+    t++;requestAnimationFrame(f);
+  })();
+})();
+
+/* ============ 粒子 ============ */
+(function(){
+  const cv=document.getElementById('fx-particles'),ctx=cv.getContext('2d');
+  let W,H,pts=[],raf;const N=55;
+  function size(){W=cv.width=innerWidth*devicePixelRatio;H=cv.height=innerHeight*devicePixelRatio;
+    cv.style.width=innerWidth+'px';cv.style.height=innerHeight+'px'}
+  function init(){size();pts=Array.from({length:N},()=>({x:Math.random()*W,y:Math.random()*H,
+    vx:(Math.random()-.5)*.2*devicePixelRatio,vy:(Math.random()-.5)*.2*devicePixelRatio,r:Math.random()*1.5*devicePixelRatio+.5}))}
+  function frame(){ctx.clearRect(0,0,W,H);
+    for(const p of pts){p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fillStyle='rgba(0,229,255,.5)';ctx.fill()}
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+      const a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);
+      if(d<120*devicePixelRatio){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);
+        ctx.strokeStyle=`rgba(0,229,255,${(1-d/(120*devicePixelRatio))*.12})`;ctx.stroke()}}
+    raf=requestAnimationFrame(frame)}
+  init();frame();
+  addEventListener('resize',()=>{cancelAnimationFrame(raf);init();frame()});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)cancelAnimationFrame(raf);else frame()});
+})();
+</script>
+</body>
+</html>

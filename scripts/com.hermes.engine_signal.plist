@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  round51.x 纯引擎小时信号定时排程 (2026-08-30)
+  每小时 :40 触发 engine_signal.py —— 纯机关闭环,去掉 Claude SKILL 的 AI 推理：
+    collect(root/hermes_collect.py --force) → 引擎判定(signal_validator.validate) → write_signal → 复盘
+  注意: 不用 bash wrapper -- macOS TCC 限制 launchd 执行 Desktop 下 shell 脚本
+  (实测 Operation not permitted), 照 com.hermes.bot/smartmoney 模式直接 .venv python 跑。
+  安装:
+    cp "scripts/com.hermes.engine_signal.plist" ~/Library/LaunchAgents/
+    launchctl load ~/Library/LaunchAgents/com.hermes.engine_signal.plist
+  卸载:
+    launchctl unload ~/Library/LaunchAgents/com.hermes.engine_signal.plist
+    rm ~/Library/LaunchAgents/com.hermes.engine_signal.plist
+  手动触发一次: launchctl start com.hermes.engine_signal
+  日志: data/hermes_engine_signal.log + data/hermes_engine_signal_cron.log
+  前置: 必须先停用旧 Claude 桌面端定时任务 btc-1h-hourly-analysis-v2(cron=40 * * * *)
+        (Desktop App UI 关闭 + 核对 ~/Library/Application Support/Claude-3p/.../scheduled-tasks.json)
+        否则同一分钟双触发——write_signal 按 slug 去重不致重复下单,但 AI 仍会空耗 token
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.hermes.engine_signal</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/tangyijun/Desktop/hermes btc/.venv/bin/python</string>
+        <string>/Users/tangyijun/Desktop/hermes btc/scripts/engine_signal.py</string>
+    </array>
+    <key>WorkingDirectory</key>
+    <string>/Users/tangyijun/Desktop/hermes btc</string>
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Minute</key>
+        <integer>40</integer>
+    </dict>
+    <key>StandardOutPath</key>
+    <string>/Users/tangyijun/Desktop/hermes btc/data/hermes_engine_signal_cron.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/tangyijun/Desktop/hermes btc/data/hermes_engine_signal_cron.log</string>
+</dict>
+</plist>

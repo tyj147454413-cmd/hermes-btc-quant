@@ -1,0 +1,10 @@
+# dsh-web-search-brave bundle layer: mount the Brave search provider and pin
+# the web row's searchProvider to it. Applied after dsh-base, so the `web` row
+# override below is the last write for that row.
+- insert:
+    - id: web-search-brave
+      name: 'dsh-web-search-brave'
+
+- id: web
+  config:
+    searchProvider: brave

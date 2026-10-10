@@ -1,0 +1,163 @@
+{
+  "trained_at": "2026-09-03T21:49:41.514072+00:00",
+  "decision_min": 50,
+  "tag": "dm50",
+  "model_basis": "last_walkforward_window",
+  "train_rows": 6275,
+  "calibration": {
+    "x": [
+      0.002441,
+      0.007836,
+      0.00786,
+      0.016442,
+      0.016555,
+      0.021737,
+      0.02184,
+      0.048841,
+      0.049198,
+      0.112771,
+      0.114794,
+      0.243636,
+      0.25465,
+      0.501547,
+      0.501913,
+      0.690765,
+      0.696914,
+      0.82957,
+      0.836548,
+      0.866148,
+      0.866778,
+      0.926111,
+      0.926812,
+      0.94926,
+      0.949912,
+      0.988594,
+      0.988677,
+      0.997027
+    ],
+    "y": [
+      0.0,
+      0.0,
+      0.007519,
+      0.007519,
+      0.025641,
+      0.025641,
+      0.034483,
+      0.034483,
+      0.055556,
+      0.055556,
+      0.2,
+      0.2,
+      0.3,
+      0.3,
+      0.705882,
+      0.705882,
+      0.727273,
+      0.727273,
+      0.888889,
+      0.888889,
+      0.923077,
+      0.923077,
+      0.944444,
+      0.944444,
+      0.994286,
+      0.994286,
+      1.0,
+      1.0
+    ]
+  },
+  "n_boost_rounds": 221,
+  "features": [
+    "dev_pct",
+    "volatility_5m",
+    "pos24h_percentile",
+    "range_24h_pct",
+    "taker_1h_buy_pct",
+    "taker_5m_last",
+    "taker_15m",
+    "imb_5m",
+    "imb_15m",
+    "kline_15m",
+    "kline_1h",
+    "momentum_burst",
+    "macro_up_1h",
+    "macro_up_4h",
+    "rsi_1h",
+    "rsi_4h",
+    "bb_pos_1h",
+    "bb_pos_4h",
+    "macd_1h_hist",
+    "macd_4h_hist",
+    "vol_ratio_1h",
+    "prev_chg_pct",
+    "prev_consec",
+    "roll_up_6h",
+    "ret_24h",
+    "hist_up_rate",
+    "funding_rate",
+    "hour_sin",
+    "hour_cos",
+    "open_dir",
+    "open_range_pct",
+    "open_vol_ratio"
+  ],
+  "params": {
+    "objective": "binary",
+    "metric": "auc",
+    "verbosity": -1,
+    "num_leaves": 31,
+    "max_depth": 6,
+    "learning_rate": 0.03,
+    "n_estimators": 2000,
+    "min_child_samples": 150,
+    "feature_fraction": 0.8,
+    "bagging_fraction": 0.8,
+    "bagging_freq": 1,
+    "reg_alpha": 0.1,
+    "reg_lambda": 1.0,
+    "seed": 42
+  },
+  "oos_auc": 0.9886755939768906,
+  "top10_importance": [
+    [
+      "dev_pct",
+      78608.09115730599
+    ],
+    [
+      "kline_15m",
+      9173.343162059784
+    ],
+    [
+      "open_dir",
+      3891.1628254055977
+    ],
+    [
+      "volatility_5m",
+      1290.4203449003398
+    ],
+    [
+      "momentum_burst",
+      1267.6717514395714
+    ],
+    [
+      "taker_1h_buy_pct",
+      1225.9362308233976
+    ],
+    [
+      "open_range_pct",
+      839.4620527029037
+    ],
+    [
+      "taker_5m_last",
+      689.4846491664648
+    ],
+    [
+      "pos24h_percentile",
+      648.9339946643449
+    ],
+    [
+      "prev_chg_pct",
+      428.19197568297386
+    ]
+  ]
+}

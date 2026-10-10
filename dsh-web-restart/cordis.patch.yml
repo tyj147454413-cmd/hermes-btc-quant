@@ -1,0 +1,5 @@
+# dsh-web-restart bundle layer: mount the restart plugin host half. The browser
+# half ships as dsh/client.js via package.json exports["./client"] (dsh.client).
+- insert:
+    - id: dsh-web-restart
+      name: 'dsh-web-restart'

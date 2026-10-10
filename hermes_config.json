@@ -1,0 +1,23 @@
+{
+  "bet_amount": 5.0,
+  "default_bet_amount": 10.0,
+  "balance": 257.89,
+  "mode": "live",
+  "fee_pct": 0.2,
+  "kelly_fraction": 0.25,
+  "tp_enabled": false,
+  "tp_final_minutes": 5,
+  "tp_min_price": 0.01,
+  "min_bet_amount": 1.0,
+  "position_scale_enabled": false,
+  "rule_a_skip_enabled": false,
+  "rule_a_price_max": 0.55,
+  "rule_a_hour_start": 16,
+  "rule_a_hour_end": 21,
+  "prob_skip_enabled": true,
+  "prob_skip_min": 0.4,
+  "prob_skip_band_lo": 0.7,
+  "prob_skip_band_hi": 0.8,
+  "trading_paused": false,
+  "analyze_min": 40
+}
